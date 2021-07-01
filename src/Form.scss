@@ -1,0 +1,124 @@
+@function rem ($px) {
+  @return $px / 16 * 1rem;
+}
+$primary: #4A66FA;
+
+.full { width: 100%; }
+.flex {
+  flex-flow: row wrap;
+  display: flex;
+  gap: rem(5);
+  .flex-1 { flex: 1 1 auto; }
+}
+
+.form {
+  &__header {
+    text-align: center;
+  }
+  &__title {
+    font-size: rem(21);
+  }
+  &__subtitle {
+    font-size: rem(12);
+    color: #999;
+  }
+}
+
+.field {
+  text-align: left;
+  margin: 1rem 0;
+  &__title {
+    font-size: rem(14);
+    margin-bottom: .35em;
+  }
+}
+
+.input {
+  $input: &;
+  $border: #d6d7dc;
+  $radius: 4px;
+  &--full { width: 100%; }
+  &__text {
+    border: 1px solid $border;
+    background-color: white;
+    width: 100%;
+    border-radius: $radius;
+    line-height: 1;
+    font-size: rem(13);
+    padding: rem(13) rem(11);
+    -webkit-appearance: none;
+    &:focus {
+      outline: none;
+      border-color: $primary; }
+  }
+  &__checkbox {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    padding: .5em 0;
+    #{$input}__view {
+      line-height: 1;
+      margin-left: rem(8);
+    }
+    #{$input}__el {
+      &:checked + #{$input}__view {
+        color: $primary;
+        border-color: $primary;
+        & * { color: $primary }
+      }
+    }
+  }
+
+
+}
+
+.rule {
+  border-radius: rem(20);
+  background-color: #F6F7FF;
+  padding: rem(20) rem(36) rem(20) rem(30);
+  text-align: left;
+  &__title {
+    font-size: rem(14);
+    text-align: center;
+    margin-bottom: rem(10);
+  }
+  &__term {
+    color: #666;
+    font-size: rem(12);
+line-height: 1.4;
+    padding-left: rem(14);
+    text-indent: rem(-14);
+    & + & {
+      margin-top: rem(10);
+    }
+    &::before {
+      content: "";
+      background-color: #26d79f;
+      vertical-align: 1px;
+      display: inline-block;
+      width: rem(5);
+      border-radius: 50%;
+      height: rem(5);
+      margin-right: rem(14)
+    }
+  }
+}
+
+.button {
+  &--full { width: 100%; }
+  &--primary { 
+    border: none;
+    height: rem(45);
+    line-height: rem(45);
+    border-radius: rem(23);
+    cursor: pointer;
+    background-color: #4860fe;
+    color: white;
+  }
+}
+
+.policy {
+  font-size: rem(12);
+  color: #999;
+  .hl { color: #333; font-style: normal; font-weight: bold; }
+}

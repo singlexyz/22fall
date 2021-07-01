@@ -1,0 +1,33 @@
+$primary: #4A66FA;
+$border: #d6d7dc;
+
+.Radio {
+  font-size: .8125rem;
+  &__wrap {
+    &:focus { outline: none; }
+  }
+  &__option--border {
+    position: absolute;
+    border-color: $primary;
+    left: -1px; top: -1px;
+    bottom: -1px; right: -1px;
+    border: 1px solid $primary;
+    border-radius: 10086rem;
+  }
+  &__option {
+    outline: none;
+    position: relative;
+    border: 1px solid $border;
+    cursor: pointer;
+    border-radius: 10086rem;
+    display: block;
+    text-align: center;
+    height: 33px; line-height: 33px;
+    padding: 0 23px;
+    &--checked {
+      color: $primary;
+      border-color: $primary;
+      background-color: #e1e4fe;
+    }
+  }
+}
