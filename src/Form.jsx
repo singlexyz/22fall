@@ -39,7 +39,7 @@ function Field({ children, title }) {
 function Checkbox ({ text, value, name, checked }) {
   return (
     <label className="input__checkbox">
-      <input className="input__el" value={value} name={name} type="checkbox" />
+      <input className="input__el" checked value={value} name={name} type="checkbox" />
       <span className="input__view">{text}</span>
     </label>
   )
@@ -50,14 +50,18 @@ function Form({ data }) {
   const [formdata, setFormdata] = useState(info)
   const onSubmit = (e) => {
     e.preventDefault()
-    axios.post('/form/submit', { info: formdata, token })
-      .then(res => console.log(res))
+    axios.post('/form/submit', {
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      info: formdata, token
+    })
+    .then(res => console.log(res))
   }
-  const onChange = (key, value)  => setFormdata({ ...formdata, [key]: value })
+  const onChange = (key, value) => setFormdata({ ...formdata, [key]: value })
 
   return (
     <form className="form" onSubmit={(e) => onSubmit(e)}>
       <Header />
+      <p>{JSON.stringify(formdata, null, 2)}</p>
       {
         fields.map(({ type, field, title, displayorder, placeholder, choices }) => {
           {

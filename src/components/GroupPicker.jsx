@@ -140,12 +140,18 @@ const Limit = styled.span`
 function GroupPicker ({ data, field, onChange }) {
   const [state, setState] = useState(data)
   const [currentCate, setCurrentCate] = useState(state[0].id)
-  const [isOpen, setIsOpen] = useState(true)
+  const [isOpen, setIsOpen] = useState(false)
+
+  // 选择群数量总计
   const [totalSelectedCount, setTotalSelectedCount] = useState(0)
+
+  // 分类下选择群总计
   const [eachSelectedCount, setEachSelectedCount] = useState(state.map(() => ([])))
+
+  // 选择的群id
   const [selectedGroup, setSelectedGroup] = useState([])
 
-  // 选择数量上限
+  // 到达上限
   const selectedMax = 3;
   const updateTotalSelectedCount = () => {
     setTotalSelectedCount(
