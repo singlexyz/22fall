@@ -6,7 +6,7 @@ import Button from './Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown, faCheck } from '@fortawesome/free-solid-svg-icons'
 
-const Container = styled.div`
+const Container = styled(motion.div)`
   min-height: 100vh;
   width: 100%; height: 100%;
   left: 0; top: 0;
@@ -29,7 +29,7 @@ const Selector = styled.div`
   height: calc(100% - 60px);
 `
 
-const Footer = styled.div`
+const Footer = styled(motion.div)`
   flex-shrink: 0;
   padding: 0 15px;
   height: 60px;
@@ -54,7 +54,7 @@ const Cate = styled.ul`
   margin-top: -2px;
 `
 
-const CateItem = styled.li`
+const CateItem = styled(motion.li)`
   font-size: .875em;
   padding: 15px 20px;
   width: 120px;
@@ -84,22 +84,15 @@ const Group = styled.ul`
 `
 
 const GroupItem = styled.li`
-  padding: 20px 15px;
+  user-select: none;
   border-radius: 10px;
+  border: 1px solid #e1e1e1;
+  position: relative;
+  padding: 20px 15px;
   font-size: .875em;
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  border: 1px solid #e1e1e1;
-  user-select: none;
-  &.disabled { opacity: 0.5; cursor: not-allowed; }
-  .icon {
-    position: absolute;
-    right: 0; bottom: 2px;
-    z-index: 10;
-    color: white;
-    width: 10px;
-  }
   &::after {
     content: ""; background-color: #e6e6e6;
     transform-origin: left bottom;
@@ -108,6 +101,15 @@ const GroupItem = styled.li`
     width: 28px; height: 100px; 
     right: 0; bottom: 0;
   }
+  .icon {
+    position: absolute;
+    right: 0; bottom: 2px;
+    z-index: 10;
+    color: white;
+    width: 10px;
+  }
+  & + & { margin-top: 10px; }
+  &.disabled { opacity: 0.5; cursor: not-allowed; }
   &.checked {
     cursor: pointer; opacity: 1;
     color: white; background-color: #4a66fa;
@@ -115,11 +117,6 @@ const GroupItem = styled.li`
     &::after { background-color: currentColor; }
     .icon { color: #4a66fa; }
   }
-  & + & { margin-top: 10px; }
-`
-
-const GroupSelected = styled.i`
-  color: red;
 `
 
 const Limit = styled.span`
@@ -179,19 +176,29 @@ function GroupPicker ({ data, field, onChange }) {
   return (
     <motion.div>
       <Trigger type="button" onClick={() => setIsOpen(true)}>爸爸快来点我</Trigger>
+      <AnimatePresence>
       {
         isOpen && (
-        <Container>
+        <Container
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+        >
           <Layout>
             <Selector>
               <AnimateSharedLayout>
                 <Cate>
                   <RadioGroup value={currentCate} onChange={setCurrentCate}>
                     {
-                    state.map(({ name, id }) => (
+                    state.map(({ name, id }, index) => (
                       <RadioGroup.Option key={id} as={React.Fragment} value={id}>
                         {({ checked }) => (
-                          <CateItem>
+                          <CateItem
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -20 }}
+                          transition={{ delay: index * 0.02, ease: [.4, 0, .2, 1] }}
+                          >
                             { checked && <CateSelected transtion={{ duration: .2 }} layoutId={`cate-selected`} /> }
                             <span style={{ position: 'relative', zIndex: 10 }}>{name}</span>
                           </CateItem>
@@ -204,8 +211,16 @@ function GroupPicker ({ data, field, onChange }) {
               </AnimateSharedLayout>
               <Group>
                 { 
-                  state.filter(({id}) => id === currentCate)[0].children.map(({ name, checked, id, cid }) => (
-                    <GroupItem key={id} className={`${selectedLimit ? 'disabled' : ''} ${checked ? 'checked' : ''}`} onClick={() => selectGroup(cid, id, checked)}>
+                  state.filter(({id}) => id === currentCate)[0].children.map(({ name, checked, id, cid }, index) => (
+                    <GroupItem
+                      key={id}
+                      className={`${selectedLimit ? 'disabled' : ''} ${checked ? 'checked' : ''}`}
+                      onClick={() => selectGroup(cid, id, checked)}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 20 }}
+                      transition={{ delay: index * .02, ease: [.4, 0, .2, 1] }}
+                    >
                       {name} {id}
                       <FontAwesomeIcon className="icon" icon={faCheck} />
                     </GroupItem>
@@ -213,7 +228,12 @@ function GroupPicker ({ data, field, onChange }) {
                 }
               </Group>
             </Selector>
-            <Footer>
+            <Footer
+                initial={{ y: '100%' }}
+                animate={{ y: '0%' }}
+                exit={{ y: '100%' }}
+                transition={{ ease: [.4, 0, .2, 1 ]}}
+            >
               <Limit>限进 3 个群，已选 <i className="highlight">{selectedCount}</i> 个</Limit>
               <Button className="button" onClick={() => setIsOpen(false)}>返回</Button>
               <Button className="button" primary onClick={onSubmit}>确定</Button>
@@ -222,6 +242,7 @@ function GroupPicker ({ data, field, onChange }) {
         </Container>
         )
       }
+      </AnimatePresence>
     </motion.div>
   )
 }
