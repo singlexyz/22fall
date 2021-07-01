@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useReducer } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { RadioGroup, Switch } from '@headlessui/react'
 import { motion, AnimatePresence, AnimateSharedLayout } from 'framer-motion'
@@ -36,6 +36,11 @@ const Footer = styled.div`
   display: flex;
   align-items: center;
   box-shadow: 0 -5px 10px rgba(0,0,0,.05);
+  .highlight { color: #4860fe; font-weight: bold; font-style: normal; }
+  .button {
+    width: 80px;
+    & + .button { margin-left: 10px; }
+  }
 `
 
 const Trigger = styled.button`
@@ -57,6 +62,7 @@ const CateItem = styled.li`
   border: 1px solid transparent;
   border-width: 1px 0;
   position: relative;
+  user-select: none;
   &:focus { outline: none; }
 `
 
@@ -70,7 +76,7 @@ const CateSelected = styled(motion.i)`
 `
 
 const Group = styled.ul`
-  padding: 20px 16px 0 24px;
+  padding: 20px 16px 20px 24px;
   flex-grow: 1;
   list-style: none;
   overflow-x: hidden;
@@ -85,6 +91,8 @@ const GroupItem = styled.li`
   position: relative;
   overflow: hidden;
   border: 1px solid #e1e1e1;
+  user-select: none;
+  &.disabled { opacity: 0.5; cursor: not-allowed; }
   .icon {
     position: absolute;
     right: 0; bottom: 2px;
@@ -101,6 +109,7 @@ const GroupItem = styled.li`
     right: 0; bottom: 0;
   }
   &.checked {
+    cursor: pointer; opacity: 1;
     color: white; background-color: #4a66fa;
     border-color: white;
     &::after { background-color: currentColor; }
@@ -113,16 +122,11 @@ const GroupSelected = styled.i`
   color: red;
 `
 
-function pickerReducer (state, { type, payload }) {
-  switch (type) {
-    case 'setcate':
-      return state
-    case 'setgroup':
-      return state
-    default:
-      return state
-  }
-}
+const Limit = styled.span`
+  font-size: .75rem;
+  flex: 1 0 auto;
+  color: #666;
+`
 
 function GroupPicker ({ data, field, onChange }) {
   const [state, setState] = useState(data)
@@ -143,14 +147,18 @@ function GroupPicker ({ data, field, onChange }) {
     )
   }
 
+  const selectedLimit = selectedCount >= selectedMax;
+
   useEffect(() => {
     updateSelectedCount()
   }, [state])
 
   const onSubmit = () => { }
 
-  function selectGroup (cateid, groupid) {
-    if (selectedCount >= selectedMax) { return; }
+  function selectGroup (cateid, groupid, checked) {
+    if (selectedLimit && !checked) { 
+      return;
+    }
     const newState = state.map(cate => {
         if (cate.id === cateid) {
           return {
@@ -179,7 +187,6 @@ function GroupPicker ({ data, field, onChange }) {
               <AnimateSharedLayout>
                 <Cate>
                   <RadioGroup value={currentCate} onChange={setCurrentCate}>
-                    <p>{selectedCount}</p>
                     {
                     state.map(({ name, id }) => (
                       <RadioGroup.Option key={id} as={React.Fragment} value={id}>
@@ -198,7 +205,7 @@ function GroupPicker ({ data, field, onChange }) {
               <Group>
                 { 
                   state.filter(({id}) => id === currentCate)[0].children.map(({ name, checked, id, cid }) => (
-                    <GroupItem key={id} className={`${checked ? 'checked' : ''}`} onClick={() => selectGroup(cid, id)}>
+                    <GroupItem key={id} className={`${selectedLimit ? 'disabled' : ''} ${checked ? 'checked' : ''}`} onClick={() => selectGroup(cid, id, checked)}>
                       {name} {id}
                       <FontAwesomeIcon className="icon" icon={faCheck} />
                     </GroupItem>
@@ -207,8 +214,9 @@ function GroupPicker ({ data, field, onChange }) {
               </Group>
             </Selector>
             <Footer>
-              <Button onClick={() => setIsOpen(false)}>返回</Button>
-              <Button primary onClick={onSubmit}>确定</Button>
+              <Limit>限进 3 个群，已选 <i className="highlight">{selectedCount}</i> 个</Limit>
+              <Button className="button" onClick={() => setIsOpen(false)}>返回</Button>
+              <Button className="button" primary onClick={onSubmit}>确定</Button>
             </Footer>
           </Layout>
         </Container>
