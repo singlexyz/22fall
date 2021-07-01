@@ -1,5 +1,6 @@
 import React from 'react'
 import Banner from '../components/Banner'
+import { motion } from 'framer-motion'
 import styled from 'styled-components'
 
 const Content = styled.div`

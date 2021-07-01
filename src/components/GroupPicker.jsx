@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useMemo, useState, useEffect, useReducer } from 'react'
 import styled from 'styled-components'
 import { RadioGroup, Switch } from '@headlessui/react'
 import { motion, AnimatePresence, AnimateSharedLayout } from 'framer-motion'
@@ -46,6 +46,7 @@ const Cate = styled.ul`
   background-color: #f5f5f5;
   border-right: 1px solid #e1e1e1;
   list-style: none;
+  margin-top: -2px;
 `
 
 const CateItem = styled.li`
@@ -101,8 +102,7 @@ const GroupItem = styled.li`
   }
   &.checked {
     color: white; background-color: #4a66fa;
-    margin: 1px;
-    border: 0;
+    border-color: white;
     &::after { background-color: currentColor; }
     .icon { color: #4a66fa; }
   }
@@ -113,33 +113,47 @@ const GroupSelected = styled.i`
   color: red;
 `
 
+function pickerReducer (state, { type, payload }) {
+  switch (type) {
+    case 'setcate':
+      return state
+    case 'setgroup':
+      return state
+    default:
+      return state
+  }
+}
 
 function GroupPicker ({ data, field, onChange }) {
   const [state, setState] = useState(data)
-  const [cate, setCate] = useState(state[0].id)
-  const [group, setGroup] = useState(getGroup())
+  const [currentCate, setCurrentCate] = useState(state[0].id)
   const [isOpen, setIsOpen] = useState(true)
+  const selectedMax = 3;
+  const selectedCounts = useMemo(() => {
+    return state.reduce((prev, next) => {
+      
+    }, 0)
+  }, state)
 
-  const onSubmit = () => {
+  const onSubmit = () => { }
 
+  function selectGroup (cateid, groupid) {
+    const newState = state.map(cate => {
+        if (cate.id === cateid) {
+          return {
+             ...cate,
+             children: cate.children.map((group) => {
+               if (group.id === groupid) {
+                 return { ...group, checked: !group.checked }
+               }
+               return group
+             })
+          }
+        }
+        return cate
+      })
+    setState(newState)
   }
-
-  function getGroup () {
-    return state.filter(({id}) => { return (id === cate) })[0]['children']
-  }
-
-  function selectGroup (groupid) {
-    state[cate].children.map((g) => {
-      if (g.id === groupid) {
-        return { ...g, checked: !g.checked }
-      }
-      return g
-    })
-  }
-
-  useEffect(() => {
-    setGroup(getGroup())
-  }, [cate])
 
   return (
     <motion.div>
@@ -151,9 +165,10 @@ function GroupPicker ({ data, field, onChange }) {
             <Selector>
               <AnimateSharedLayout>
                 <Cate>
-                  <RadioGroup value={cate} onChange={setCate}>
+                  <RadioGroup value={currentCate} onChange={setCurrentCate}>
+                    <p>{selectedCounts}</p>
                     {
-                    data.map(({ name, id }) => (
+                    state.map(({ name, id }) => (
                       <RadioGroup.Option key={id} as={React.Fragment} value={id}>
                         {({ checked }) => (
                           <CateItem>
@@ -169,8 +184,8 @@ function GroupPicker ({ data, field, onChange }) {
               </AnimateSharedLayout>
               <Group>
                 { 
-                  group && group.map(({ name, checked, id }) => (
-                    <GroupItem className={`checked`} onClick={() => selectGroup(id)}>
+                  state.filter(({id}) => id === currentCate)[0].children.map(({ name, checked, id, cid }) => (
+                    <GroupItem key={id} className={`${checked ? 'checked' : ''}`} onClick={() => selectGroup(cid, id)}>
                       {name} {id}
                       <FontAwesomeIcon className="icon" icon={faCheck} />
                     </GroupItem>
@@ -179,7 +194,7 @@ function GroupPicker ({ data, field, onChange }) {
               </Group>
             </Selector>
             <Footer>
-              <Button stroke onClick={() => setIsOpen(false)}>返回</Button>
+              <Button onClick={() => setIsOpen(false)}>返回</Button>
               <Button primary onClick={onSubmit}>确定</Button>
             </Footer>
           </Layout>

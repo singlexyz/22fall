@@ -47,29 +47,17 @@ function Checkbox ({ text, value, name, checked }) {
 
 function Form({ data }) {
   const { info, fields, token } = data.data
-
   const [formdata, setFormdata] = useState(info)
-
   const onSubmit = (e) => {
     e.preventDefault()
     axios.post('/form/submit', { info: formdata, token })
   }
-
   const onChange = (key, value)  => setFormdata({ ...formdata, [key]: value })
-
-  console.log(fields)
 
   return (
     <form className="form" onSubmit={(e) => onSubmit(e)}>
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ ease: [.4, 0, .2, 1], duration: .4 }}
-        >
       <Header />
-
       <pre>{JSON.stringify(formdata, null, 2)}</pre>
-
         {
         fields.map(({ type, field, title, displayorder, placeholder, choices }) => {
           {
@@ -111,15 +99,12 @@ function Form({ data }) {
         })
         }
       <Rule />
-
       <Field>
         <Checkbox name="policy" text={(
           <span className="policy">我已认真阅读并同意<i className="hl">《寄托小群规》</i></span>
         )} value={1} />
       </Field>
-
       <button type="submit" className="button--full button--primary">提交</button>
-      </motion.div>
     </form>
   )
 } 
