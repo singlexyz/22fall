@@ -11,7 +11,7 @@ const Button = styled.button`
     transform: translate(1px, 1px);
   }
   .icon { margin-right: .35em; }
-  ${props => props.primary && ` background-color: #4A66FA; color: white; `}
+  ${props => props.primary && ` background-color: #4a66fa; color: white; `}
   ${props => props.add && ` background-color: #E9FBF5; color: #26d79f; `}
   ${props => props.invalid && ` background-color: #f5f5f5; color: #000000; `}
 `
