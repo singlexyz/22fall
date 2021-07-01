@@ -51,53 +51,53 @@ function Form({ data }) {
   const onSubmit = (e) => {
     e.preventDefault()
     axios.post('/form/submit', { info: formdata, token })
+      .then(res => console.log(res))
   }
   const onChange = (key, value)  => setFormdata({ ...formdata, [key]: value })
 
   return (
     <form className="form" onSubmit={(e) => onSubmit(e)}>
       <Header />
-      <pre>{JSON.stringify(formdata, null, 2)}</pre>
-        {
+      {
         fields.map(({ type, field, title, displayorder, placeholder, choices }) => {
           {
             switch (type) {
-            case 'text':
-            return (
-              <Field key={field} title={displayorder + '、' + title}>
-                <input value={formdata[field]} onInput={(e) => onChange(field, e.target.value)} placeholder={placeholder} type="text" className="input__text" />
-              </Field>
-            )
-            case 'radio':
-            return (
-              <Field key={field} title={displayorder + '、' + title}>
-                <Radio field={field} onChange={onChange} value={formdata[field]} values={choices} />
-              </Field>
-            )
-            case 'select':
-            return (
-              <Field key={field} title={displayorder + '、' + title}>
-                <Flex><FlexGrow>
-                  <Select onChange={onChange} field={field} value={formdata[field]} values={choices}></Select>
-                </FlexGrow></Flex>
-              </Field>
-            )
-            case 'multipleselectgroup':
-            return (
-              <Field key={field} field={field} title={displayorder + '、' + title}>
-                <GroupPicker data={choices} onChange={onChange} />
-              </Field>
-            )
-            default:
-            return (
-              <Field key={field} field={field} title={displayorder + '、' + title}>
-                <h1>这种类型类型你哥我还没有做。</h1>
-              </Field>
-            )
+              case 'text':
+                return (
+                  <Field key={field} title={displayorder + '、' + title}>
+                    <input value={formdata[field]} onInput={(e) => onChange(field, e.target.value)} placeholder={placeholder} type="text" className="input__text" />
+                  </Field>
+                )
+              case 'radio':
+                return (
+                  <Field key={field} title={displayorder + '、' + title}>
+                    <Radio field={field} onChange={onChange} value={formdata[field]} values={choices} />
+                  </Field>
+                )
+              case 'select':
+                return (
+                  <Field key={field} title={displayorder + '、' + title}>
+                    <Flex><FlexGrow>
+                      <Select onChange={onChange} field={field} value={formdata[field]} values={choices}></Select>
+                    </FlexGrow></Flex>
+                  </Field>
+                )
+              case 'multipleselectgroup':
+                return (
+                  <Field key={field} field={field} title={displayorder + '、' + title}>
+                    <GroupPicker field={field} data={choices} onChange={onChange} />
+                  </Field>
+                )
+              default:
+                return (
+                  <Field key={field} field={field} title={displayorder + '、' + title}>
+                    <h1>这种类型类型你哥我还没有做。</h1>
+                  </Field>
+                )
             }
           }
         })
-        }
+      }
       <Rule />
       <Field>
         <Checkbox name="policy" text={(

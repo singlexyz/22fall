@@ -57,12 +57,24 @@ const Cate = styled.ul`
 const CateItem = styled(motion.li)`
   font-size: .875em;
   padding: 15px 20px;
-  width: 120px;
+  width: 180px;
   cursor: pointer;
   border: 1px solid transparent;
   border-width: 1px 0;
   position: relative;
   user-select: none;
+  .count {
+    color: white; background-color: #4b63fa;
+    width: 1.2em; height: 1.2em;
+    line-height: 1.2em;
+    right: .5em;
+    top: 50%;
+    transform: translatey(-50%);
+    position: absolute;
+    border-radius: 50%;
+    text-align: center;
+
+  }
   &:focus { outline: none; }
 `
 
@@ -129,28 +141,60 @@ function GroupPicker ({ data, field, onChange }) {
   const [state, setState] = useState(data)
   const [currentCate, setCurrentCate] = useState(state[0].id)
   const [isOpen, setIsOpen] = useState(true)
-  const [selectedCount, setSelectedCount] = useState(0)
+  const [totalSelectedCount, setTotalSelectedCount] = useState(0)
+  const [eachSelectedCount, setEachSelectedCount] = useState(state.map(() => ([])))
+  const [selectedGroup, setSelectedGroup] = useState([])
 
   // 选择数量上限
   const selectedMax = 3;
-  const updateSelectedCount = () => {
-    setSelectedCount(
-      state.reduce((a, b) => {
-        return a + b.children.reduce((c, d) => {
-          if (d.checked) { return ++c }
-          return c
-        }, 0)
+  const updateTotalSelectedCount = () => {
+    setTotalSelectedCount(
+      eachSelectedCount.reduce((a,b) => {
+        return a + b
       }, 0)
     )
   }
 
-  const selectedLimit = selectedCount >= selectedMax;
+  const updateEachSelectedCount = () => {
+    setEachSelectedCount(
+      state.map(v => {
+        const count = v.children.reduce((a, b) => {
+          if (b.checked) { return ++a }
+          return a
+        }, 0)
+        return count
+      })
+    )
+  }
+
+  const updateSelectedGroup = () => {
+    setSelectedGroup(
+      state.reduce((a,b) => {
+        return [ ...a, ...b.children.filter(({ checked, id }) => {
+          if (checked) { return id }
+        }).map(({ id }) => id)]
+      }, [])
+    )
+  }
+
+  const selectedLimit = totalSelectedCount >= selectedMax;
 
   useEffect(() => {
-    updateSelectedCount()
+    updateTotalSelectedCount()
+  }, [eachSelectedCount])
+
+  useEffect(() => {
+    updateSelectedGroup()
   }, [state])
 
-  const onSubmit = () => { }
+  useEffect(() => {
+    updateEachSelectedCount()
+  }, [state])
+
+  const onSubmit = () => {
+    onChange(field, selectedGroup)
+    setIsOpen(false)
+  }
 
   function selectGroup (cateid, groupid, checked) {
     if (selectedLimit && !checked) { 
@@ -180,9 +224,9 @@ function GroupPicker ({ data, field, onChange }) {
       {
         isOpen && (
         <Container
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
         >
           <Layout>
             <Selector>
@@ -194,13 +238,18 @@ function GroupPicker ({ data, field, onChange }) {
                       <RadioGroup.Option key={id} as={React.Fragment} value={id}>
                         {({ checked }) => (
                           <CateItem
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, x: -20 }}
-                          transition={{ delay: index * 0.02, ease: [.4, 0, .2, 1] }}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            transition={{ delay: index * 0.02, ease: [.4, 0, .2, 1] }}
                           >
                             { checked && <CateSelected transtion={{ duration: .2 }} layoutId={`cate-selected`} /> }
                             <span style={{ position: 'relative', zIndex: 10 }}>{name}</span>
+                            { 
+                              eachSelectedCount[index] > 0 && <span className="count">
+                                {eachSelectedCount[index]}
+                              </span>
+                            }
                           </CateItem>
                         )}
                       </RadioGroup.Option>
@@ -234,7 +283,7 @@ function GroupPicker ({ data, field, onChange }) {
                 exit={{ y: '100%' }}
                 transition={{ ease: [.4, 0, .2, 1 ]}}
             >
-              <Limit>限进 3 个群，已选 <i className="highlight">{selectedCount}</i> 个</Limit>
+              <Limit>限进 3 个群，已选 <i className="highlight">{totalSelectedCount}</i> 个</Limit>
               <Button className="button" onClick={() => setIsOpen(false)}>返回</Button>
               <Button className="button" primary onClick={onSubmit}>确定</Button>
             </Footer>
