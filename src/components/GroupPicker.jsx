@@ -128,16 +128,29 @@ function GroupPicker ({ data, field, onChange }) {
   const [state, setState] = useState(data)
   const [currentCate, setCurrentCate] = useState(state[0].id)
   const [isOpen, setIsOpen] = useState(true)
+  const [selectedCount, setSelectedCount] = useState(0)
+
+  // 选择数量上限
   const selectedMax = 3;
-  const selectedCounts = useMemo(() => {
-    return state.reduce((prev, next) => {
-      
-    }, 0)
-  }, state)
+  const updateSelectedCount = () => {
+    setSelectedCount(
+      state.reduce((a, b) => {
+        return a + b.children.reduce((c, d) => {
+          if (d.checked) { return ++c }
+          return c
+        }, 0)
+      }, 0)
+    )
+  }
+
+  useEffect(() => {
+    updateSelectedCount()
+  }, [state])
 
   const onSubmit = () => { }
 
   function selectGroup (cateid, groupid) {
+    if (selectedCount >= selectedMax) { return; }
     const newState = state.map(cate => {
         if (cate.id === cateid) {
           return {
@@ -166,7 +179,7 @@ function GroupPicker ({ data, field, onChange }) {
               <AnimateSharedLayout>
                 <Cate>
                   <RadioGroup value={currentCate} onChange={setCurrentCate}>
-                    <p>{selectedCounts}</p>
+                    <p>{selectedCount}</p>
                     {
                     state.map(({ name, id }) => (
                       <RadioGroup.Option key={id} as={React.Fragment} value={id}>
