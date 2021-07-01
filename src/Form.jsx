@@ -36,7 +36,7 @@ function Field({ children, title }) {
   )
 }
 
-function Checkbox ({ text, value, name, checked }) {
+function Checkbox({ text, value, name, checked }) {
   return (
     <label className="input__checkbox">
       <input className="input__el" checked value={value} name={name} type="checkbox" />
@@ -54,7 +54,7 @@ function Form({ data }) {
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       info: formdata, token
     })
-    .then(res => console.log(res))
+      .then(res => console.log(res))
   }
   const onChange = (key, value) => setFormdata({ ...formdata, [key]: value })
 
@@ -111,6 +111,6 @@ function Form({ data }) {
       <button type="submit" className="button--full button--primary">提交</button>
     </form>
   )
-} 
+}
 
 export default Form
