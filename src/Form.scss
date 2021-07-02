@@ -12,6 +12,7 @@ $primary: #4A66FA;
 }
 
 .form {
+  counter-reset: number;
   &__header {
     text-align: center;
     margin-bottom: 1em;
@@ -27,9 +28,11 @@ $primary: #4A66FA;
 }
 
 .field {
+  counter-increment: number;;
   text-align: left;
   margin: 1rem 0;
   &__title {
+    &::before { content: counter(number) '. '; }
     font-size: rem(14);
     margin-bottom: .35em;
   }

@@ -1,7 +1,9 @@
 import React, { useState, useContext } from 'react'
+import { motion, AnimatePresence,AnimateSharedLayout } from 'framer-motion'
 import AdaSelect from './components/AdaSelect'
 import Select from './components/Select'
 import Radio from './components/Radio'
+import Button from './components/Button'
 import axios from 'axios'
 import './Form.scss'
 import { useHistory } from 'react-router-dom'
@@ -49,7 +51,6 @@ function Form({ data }) {
   const [formdata, setFormdata] = useState(info)
   const onSubmit = (e) => {
     e.preventDefault()
-    if (formF)
     axios.post('/form/submit', {
       info: formdata, token
     }).then(res => console.log(res))
@@ -63,52 +64,64 @@ function Form({ data }) {
     <DefaultLayout>
       <form className="form" onSubmit={(e) => onSubmit(e)}>
         <Header onClick={() => history.push('/feedback')} />
+        <pre>{JSON.stringify(formdata, null, 2)}</pre>
+        <AnimateSharedLayout>
         {
         fields.map(({ type, field, title, placeholder, choices }, index) => {
-          const displayorder = index + 1
           {
             switch (type) {
             case 'text':
             return (
-              <Field key={field} title={displayorder + '、' + title}>
-                <input value={formdata[field]} onInput={(e) => onChange(field, e.target.value)} placeholder={placeholder} type="text" className="input__text" />
+              <Field key={field} title={title}>
+                <input
+                  value={formdata[field]}
+                  onInput={(e) => onChange(field, e.target.value)}
+                  placeholder={placeholder} type="text" className="input__text" />
               </Field>
             )
             case 'radio':
             return (
-              <Field key={field} title={displayorder + '、' + title}>
+              <Field key={field} title={title}>
                 <Radio field={field} onChange={onChange} value={formdata[field]} values={choices} />
+                <AnimatePresence exitBeforeEnter>
                 {
-                formdata[field] === '*'
-                  && <input style={{ marginTop: '6px' }} value={formdata[field + '_other']} onInput={(e) => onChange(field + '_other', e.target.value)} placeholder={placeholder} type="text" className="input__text" />
+                  formdata[field] === '*'
+                    && <motion.input
+                      layout
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0 }}
+                      style={{ marginTop: '6px' }}
+                      value={formdata[field + '_other'] || ''}
+                      onInput={(e) => onChange(field + '_other', e.target.value)}
+                      placeholder={placeholder} type="text" className="input__text" />
                 }
+                </AnimatePresence>
               </Field>
             )
             case 'select':
             return (
-              <Field key={field} title={displayorder + '、' + title}>
+              <Field key={field} title={title}>
                 {
                 field === 'highesteducation' ?
-                <AdaSelect field={field} onChange={onChange} value={formdata[field]} values={choices} /> :
-                <Select onChange={onChange} field={field} value={formdata[field]} values={choices}></Select>
+                <AdaSelect onChange={onChange} field={field} value={formdata[field]} values={choices} />
+                :
+                <Select onChange={onChange} field={field} value={formdata[field]} values={choices} />
                 }
               </Field>
             )
-            // case 'hidden':
-            //   return (
-            //     <h1>都叫 hidden 了，怎么可能让你看见。</h1>
-            //   )
             }
           }
         })
         }
+        </AnimateSharedLayout>
         <Rule />
         <Field>
           <Checkbox name="policy" text={(
             <span className="policy">我已认真阅读并同意<i className="hl">《寄托小群规》</i></span>
           )} />
         </Field>
-        <button type="submit" className="button--full button--primary">提交</button>
+        <Button type="submit" primary>提交</Button>
       </form>
     </DefaultLayout>
   )

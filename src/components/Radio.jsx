@@ -9,11 +9,11 @@ function Radio ({ value, values, onChange, field }) {
       {
       values.map(({ value, name }) => (
         <RadioGroup.Option key={value} className="Radio__wrap" as={FlexItem} value={value}>
-            {({ checked }) => (
-              <span className={`Radio__option ${ checked ? 'Radio__option--checked' : '' }`}>
-                {name}
-              </span>
-            )}
+          {({ checked }) => (
+            <span className={`Radio__option ${ checked ? 'Radio__option--checked' : '' }`}>
+              {name}
+            </span>
+          )}
         </RadioGroup.Option>
       ))
       }

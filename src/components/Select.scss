@@ -6,7 +6,7 @@ $border: #d6d7dc;
   line-height: 44px;
   padding: 0 15px;
   user-select: none;
-  &:hover { background-color: #E1E4FD; }
+  &:hover { border-color: $primary; background-color: #E1E4FD; }
   &:focus { outline: none; }
 }
 
