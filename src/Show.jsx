@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import DefaultLayout from './layout/DefaultLayout'
-import Select from './components/Select'
 import Button from './components/Button'
 import QRCode from './view/QRCode'
+import axios from 'axios'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAddressCard, faPlusSquare } from '@fortawesome/free-regular-svg-icons'
@@ -24,13 +24,20 @@ const Wrap = styled.div`
   margin: 6px 0 30px;
 `
 
-function Show ({ data }) {
-  const { field, choices } = data.fields[0]
+function Show () {
+  const [data, setData] = useState(null)
+  useEffect(() => {
+    axios.post('/form/details', {
+      uniqid: '22fallGroup'
+    }, { headers: { authorization: '58b5cc72ae86e1b28c632fd4f9b4759f', } })
+    .then(({ data }) => { setData(data.data) })
+  }, [])
   function onChange (value) {
     setValue(value)
   }
+  console.log(data)
   return (
-    <>
+    <DefaultLayout>
       <h6>
         <FontAwesomeIcon className="icon" icon={faAddressCard}></FontAwesomeIcon>
         微信号：JaneDeng
@@ -41,14 +48,13 @@ function Show ({ data }) {
         选择你要进入的群（进群数有限制，请按需勾选）
       </h6>
       <Wrap>
-        <GroupPicker field={field} data={choices} onChange={onChange} />
       </Wrap>
       <Button type="submit" primary>提交</Button>
       <QRCode
         desc1={<Desc>填表后扫码添加<span className="wechat">【葱哥的助手】</span></Desc>}
         desc2="点击葱哥发给你的“进群入口”链接，扫码进群。"
       ></QRCode>
-    </>
+    </DefaultLayout>
   )
 }
 
