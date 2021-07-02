@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 
+import AdaSelect from './components/AdaSelect'
 import Select from './components/Select'
 import Radio from './components/Radio'
-import GroupPicker from './components/GroupPicker'
-import { Flex, FlexGrow } from './view/Flex'
 import axios from 'axios'
 import './Form.scss'
+import { useHistory } from 'react-router-dom'
 
 function Header() {
   return (
@@ -39,7 +39,7 @@ function Field({ children, title }) {
 function Checkbox({ text, value, name, checked }) {
   return (
     <label className="input__checkbox">
-      <input className="input__el" checked value={value} name={name} type="checkbox" />
+      <input className="input__el" defaultChecked value={value} name={name} type="checkbox" />
       <span className="input__view">{text}</span>
     </label>
   )
@@ -50,63 +50,63 @@ function Form({ data }) {
   const [formdata, setFormdata] = useState(info)
   const onSubmit = (e) => {
     e.preventDefault()
+    if (formF)
     axios.post('/form/submit', {
-      headers: { 'content-type': 'application/x-www-form-urlencoded' },
       info: formdata, token
-    })
-      .then(res => console.log(res))
+    }).then(res => console.log(res))
   }
+
   const onChange = (key, value) => setFormdata({ ...formdata, [key]: value })
+
+  const history = useHistory()
 
   return (
     <form className="form" onSubmit={(e) => onSubmit(e)}>
-      <Header />
-      <p>{JSON.stringify(formdata, null, 2)}</p>
+      <Header onClick={() => history.push('/feedback')} />
       {
-        fields.map(({ type, field, title, displayorder, placeholder, choices }) => {
-          {
-            switch (type) {
-              case 'text':
-                return (
-                  <Field key={field} title={displayorder + '、' + title}>
-                    <input value={formdata[field]} onInput={(e) => onChange(field, e.target.value)} placeholder={placeholder} type="text" className="input__text" />
-                  </Field>
-                )
-              case 'radio':
-                return (
-                  <Field key={field} title={displayorder + '、' + title}>
-                    <Radio field={field} onChange={onChange} value={formdata[field]} values={choices} />
-                  </Field>
-                )
-              case 'select':
-                return (
-                  <Field key={field} title={displayorder + '、' + title}>
-                    <Flex><FlexGrow>
-                      <Select onChange={onChange} field={field} value={formdata[field]} values={choices}></Select>
-                    </FlexGrow></Flex>
-                  </Field>
-                )
-              case 'multipleselectgroup':
-                return (
-                  <Field key={field} field={field} title={displayorder + '、' + title}>
-                    <GroupPicker field={field} data={choices} onChange={onChange} />
-                  </Field>
-                )
-              default:
-                return (
-                  <Field key={field} field={field} title={displayorder + '、' + title}>
-                    <h1>这种类型类型你哥我还没有做。</h1>
-                  </Field>
-                )
-            }
+      fields.map(({ type, field, title, placeholder, choices }, index) => {
+        const displayorder = index + 1
+        {
+          switch (type) {
+          case 'text':
+          return (
+            <Field key={field} title={displayorder + '、' + title}>
+              <input value={formdata[field]} onInput={(e) => onChange(field, e.target.value)} placeholder={placeholder} type="text" className="input__text" />
+            </Field>
+          )
+          case 'radio':
+          return (
+            <Field key={field} title={displayorder + '、' + title}>
+              <Radio field={field} onChange={onChange} value={formdata[field]} values={choices} />
+              {
+                formdata[field] === '*'
+                && <input style={{ marginTop: '6px' }} value={formdata[field + '_other']} onInput={(e) => onChange(field + '_other', e.target.value)} placeholder={placeholder} type="text" className="input__text" />
+              }
+            </Field>
+          )
+          case 'select':
+          return (
+            <Field key={field} title={displayorder + '、' + title}>
+              {
+                field === 'highesteducation' ?
+                <AdaSelect field={field} onChange={onChange} value={formdata[field]} values={choices} /> :
+                <Select onChange={onChange} field={field} value={formdata[field]} values={choices}></Select>
+              }
+            </Field>
+          )
+          // case 'hidden':
+          //   return (
+          //     <h1>都叫 hidden 了，怎么可能让你看见。</h1>
+          //   )
           }
-        })
+        }
+      })
       }
       <Rule />
       <Field>
         <Checkbox name="policy" text={(
           <span className="policy">我已认真阅读并同意<i className="hl">《寄托小群规》</i></span>
-        )} value={1} />
+        )} />
       </Field>
       <button type="submit" className="button--full button--primary">提交</button>
     </form>

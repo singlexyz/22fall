@@ -12,17 +12,21 @@ const Content = styled.div`
   padding: 1.875rem 1.5625rem 1.875rem;
 `
 
-const Page = styled.div`
+const Page = styled(motion.div)`
   max-width: 480px; 
   min-height: 100vh; background-color: white;
   margin: 0 auto;
   font-size: ${() => 14 / 16}rem;
 `
 
-function DefaultLayout ({ children }) {
+function DefaultLayout ({ image, children }) {
   return (
-    <Page>
-      <Banner />
+    <Page
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      >
+      <Banner image={image} />
       <Content>
         {children}
       </Content>

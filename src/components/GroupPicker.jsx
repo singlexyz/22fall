@@ -4,7 +4,8 @@ import { RadioGroup, Switch } from '@headlessui/react'
 import { motion, AnimatePresence, AnimateSharedLayout } from 'framer-motion'
 import Button from './Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChevronDown, faCheck } from '@fortawesome/free-solid-svg-icons'
+import { faCheck } from '@fortawesome/free-solid-svg-icons'
+import { faTrashAlt } from '@fortawesome/free-regular-svg-icons'
 
 const Container = styled(motion.div)`
   min-height: 100vh;
@@ -137,10 +138,23 @@ const Limit = styled.span`
   color: #666;
 `
 
+const SelectedGroupList = styled.ul`
+  list-style: none;
+`
+
+const SelectedGroupItem = styled.li`
+  height: 44px; line-height: 44px; margin: 10px 0; padding: 0 15px;
+  border-radius: 4px; background-color: #f7f7f7; display: flex;
+  .button { cursor: pointer; color: #666; background-color: transparent; margin-left: auto; width: 44px; border: 0; }
+  .icon { margin-right: 0; }
+`
+
+
 function GroupPicker ({ data, field, onChange }) {
   const [state, setState] = useState(data)
   const [currentCate, setCurrentCate] = useState(state[0].id)
   const [isOpen, setIsOpen] = useState(false)
+
 
   // 选择群数量总计
   const [totalSelectedCount, setTotalSelectedCount] = useState(0)
@@ -176,9 +190,9 @@ function GroupPicker ({ data, field, onChange }) {
   const updateSelectedGroup = () => {
     setSelectedGroup(
       state.reduce((a,b) => {
-        return [ ...a, ...b.children.filter(({ checked, id }) => {
-          if (checked) { return id }
-        }).map(({ id }) => id)]
+        return [ ...a, ...b.children.filter(({ checked }) => {
+          if (checked) { return true }
+        }).map(({ id, name, cid }) => ({ cid, name, id}))]
       }, [])
     )
   }
@@ -190,6 +204,10 @@ function GroupPicker ({ data, field, onChange }) {
   }, [eachSelectedCount])
 
   useEffect(() => {
+    onChange(field, selectedGroup.map(({id}) => id));
+  }, [selectedGroup])
+
+  useEffect(() => {
     updateSelectedGroup()
   }, [state])
 
@@ -197,12 +215,7 @@ function GroupPicker ({ data, field, onChange }) {
     updateEachSelectedCount()
   }, [state])
 
-  const onSubmit = () => {
-    onChange(field, selectedGroup)
-    setIsOpen(false)
-  }
-
-  function selectGroup (cateid, groupid, checked) {
+  const selectGroup = (cateid, groupid, checked) => {
     if (selectedLimit && !checked) { 
       return;
     }
@@ -223,9 +236,27 @@ function GroupPicker ({ data, field, onChange }) {
     setState(newState)
   }
 
+  const removeSelectedGroup = (cid, id, checked) => {
+    selectGroup(cid, id, checked)
+  }
+
   return (
     <motion.div>
       <Trigger type="button" onClick={() => setIsOpen(true)}>爸爸快来点我</Trigger>
+      {
+        selectedGroup.length && <SelectedGroupList>
+        {
+          selectedGroup.map(({ name, cid, id }) => (
+            <SelectedGroupItem key={id}>
+              {name}
+              <button className="button" onClick={() => removeSelectedGroup(cid, id, true)}>
+                <FontAwesomeIcon className="icon" icon={faTrashAlt} />
+              </button>
+            </SelectedGroupItem>
+          ))
+        }
+        </SelectedGroupList>
+      }
       <AnimatePresence>
       {
         isOpen && (
@@ -290,8 +321,8 @@ function GroupPicker ({ data, field, onChange }) {
                 transition={{ ease: [.4, 0, .2, 1 ]}}
             >
               <Limit>限进 3 个群，已选 <i className="highlight">{totalSelectedCount}</i> 个</Limit>
-              <Button className="button" onClick={() => setIsOpen(false)}>返回</Button>
-              <Button className="button" primary onClick={onSubmit}>确定</Button>
+              <Button type="button" className="button" onClick={() => setIsOpen(false)}>返回</Button>
+              <Button type="button" className="button" primary onClick={() => setIsOpen(false)}>确定</Button>
             </Footer>
           </Layout>
         </Container>

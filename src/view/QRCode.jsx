@@ -46,10 +46,13 @@ function QRCode ({ image, desc1, desc2 }) {
         <img src={image} />
       </Code>
       <Desc>
-        <Desc1>
-          <FontAwesomeIcon className="icon" icon={faWeixin}></FontAwesomeIcon>
-          {desc1}
-        </Desc1>
+        { 
+        desc1 && 
+          <Desc1>
+            <FontAwesomeIcon className="icon" icon={faWeixin}></FontAwesomeIcon>
+            {desc1}
+          </Desc1>
+        }
         { desc2 && <Desc2>{desc2}</Desc2> }
       </Desc>
     </Wrap>
