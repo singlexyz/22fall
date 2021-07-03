@@ -17,9 +17,8 @@ function Feedback () {
   }
   const field = 'abc'
 
-  const ref = useRef(null)
   return (
-    <DefaultLayout ref={ref} image={feedbackBanner}>
+    <DefaultLayout image={feedbackBanner}>
       <AdaSelect container={ref} onChange={onChange} field={field} value={'大一'} values={['大一', '大二', '大三', '大四']} />
       <QRCode desc2={(
         <Text>

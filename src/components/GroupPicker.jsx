@@ -150,8 +150,8 @@ const SelectedGroupItem = styled.li`
 `
 
 
-function GroupPicker ({ data, field, onChange }) {
-  const [state, setState] = useState(data)
+function GroupPicker ({ groups, field, onChange }) {
+  const [state, setState] = useState(groups)
   const [currentCate, setCurrentCate] = useState(state[0].id)
   const [isOpen, setIsOpen] = useState(false)
 
@@ -204,7 +204,7 @@ function GroupPicker ({ data, field, onChange }) {
   }, [eachSelectedCount])
 
   useEffect(() => {
-    onChange(field, selectedGroup.map(({id}) => id));
+    onChange(selectedGroup.map(({id}) => id));
   }, [selectedGroup])
 
   useEffect(() => {

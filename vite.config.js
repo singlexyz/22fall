@@ -6,8 +6,9 @@ export default defineConfig({
   plugins: [reactRefresh()],
   server: {
     proxy: {
+      '/form/22fallGroup/groupList': 'https://app.gter.net/',
       '/form/details': 'https://app.gter.net/',
-      '/form/submit': 'https://app.gter.net/',
+      '/form/submit': 'https://app.gter.net/'
     }
   }
 })

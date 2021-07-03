@@ -49,7 +49,7 @@ $border: #d6d7dc;
     margin-bottom: 1px;
     .icon { margin-right: .5em; }
   }
-  &__option--selected {
+  &__option--active, &__option--selected {
     background-color: #ECEFFE;
     color: #4860fe
   }

@@ -1,12 +1,12 @@
 import React, { Suspense, lazy, useState, useEffect } from 'react'
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import styled from 'styled-components'
-import axios from 'axios'
 
 const Home = lazy(() => import('./Home')) 
 const QR = lazy(() => import('./QR'))
-const Show = lazy(() => import('./Show'))
+const Group = lazy(() => import('./Group'))
 const Feedback = lazy(() => import('./Feedback'))
+const Success = lazy(() => import('./Success'))
 
 const StyledLoading = styled.div`
   position: fixed; display: flex; justify-content: center;
@@ -18,37 +18,27 @@ const StyledLoading = styled.div`
 
 const Loading = () => (<StyledLoading>Loading...</StyledLoading>)
 
-import GlobalContext from './context/global'
-
 function App() {
-  const [data, setData] = useState(null)
-  useEffect(() => {
-    axios.post('/form/details', {
-      uniqid: '22fallGroup'
-    }, { headers: { authorization: '58b5cc72ae86e1b28c632fd4f9b4759f', } })
-      .then(({ data }) => {
-        setData(data.data)
-      })
-  }, [])
   return (
-    <GlobalContext.Provider value={data}>
-      <Router>
-        <Switch location={location} key={location.key}>
-          <Route path="/" exact>
-            <Suspense fallback={<Loading />}><Home /></Suspense>
-          </Route>
-          <Route path="/qr" >
-            <Suspense fallback={<Loading />}><QR /></Suspense>
-          </Route>
-          <Route path="/show">
-            <Suspense fallback={<Loading />}><Show /></Suspense>
-          </Route>
-          <Route path="/feedback">
-            <Suspense fallback={<Loading />}><Feedback /></Suspense>
-          </Route>
-        </Switch>
-      </Router>
-    </GlobalContext.Provider>
+    <Router>
+      <Switch location={location} key={location.key}>
+        <Route path="/" exact>
+          <Suspense fallback={<Loading />}><Home /></Suspense>
+        </Route>
+        <Route path="/group">
+          <Suspense fallback={<Loading />}><Group /></Suspense>
+        </Route>
+        <Route path="/qr" >
+          <Suspense fallback={<Loading />}><QR /></Suspense>
+        </Route>
+        <Route path="/success" >
+          <Suspense fallback={<Loading />}><Success /></Suspense>
+        </Route>
+        <Route path="/feedback">
+          <Suspense fallback={<Loading />}><Feedback /></Suspense>
+        </Route>
+      </Switch>
+    </Router>
   )
 }
 

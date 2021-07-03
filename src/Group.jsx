@@ -3,11 +3,12 @@ import styled from 'styled-components'
 import DefaultLayout from './layout/DefaultLayout'
 import Button from './components/Button'
 import QRCode from './view/QRCode'
-import axios from 'axios'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAddressCard, faPlusSquare } from '@fortawesome/free-regular-svg-icons'
 import GroupPicker from './components/GroupPicker'
+
+import { fetchGroupList } from './api'
 
 const Desc = styled.span`
   font-size: ${() => 13 / 16}rem;
@@ -24,20 +25,28 @@ const Wrap = styled.div`
   margin: 6px 0 30px;
 `
 
-function Show () {
+function Group () {
   const [data, setData] = useState(null)
-  useEffect(() => {
-    axios.post('/form/details', {
-      uniqid: '22fallGroup'
-    }, { headers: { authorization: '58b5cc72ae86e1b28c632fd4f9b4759f', } })
-    .then(({ data }) => { setData(data.data) })
-  }, [])
+  const [selectedGroup, setSelectedGroup] = useState([])
+
   function onChange (value) {
-    setValue(value)
+    console.log(value)
+    setSelectedGroup(value)
   }
-  console.log(data)
+
+  function onSubmit () {
+    if (selectedGroup.length) {
+    } 
+  }
+
+  useEffect(async () => {
+    const { data } = await fetchGroupList()
+    setData(data)
+  }, [])
+
   return (
-    <DefaultLayout>
+    data && <DefaultLayout>
+      <pre>{JSON.stringify(selectedGroup, null, 2)}</pre>
       <h6>
         <FontAwesomeIcon className="icon" icon={faAddressCard}></FontAwesomeIcon>
         微信号：JaneDeng
@@ -48,9 +57,11 @@ function Show () {
         选择你要进入的群（进群数有限制，请按需勾选）
       </h6>
       <Wrap>
+        <GroupPicker onChange={onChange} field='test' groups={data.groupList} />
       </Wrap>
-      <Button type="submit" primary>提交</Button>
+      <Button onClick={onSubmit} type="button" primary>提交</Button>
       <QRCode
+        image={data.wechatQrcode}
         desc1={<Desc>填表后扫码添加<span className="wechat">【葱哥的助手】</span></Desc>}
         desc2="点击葱哥发给你的“进群入口”链接，扫码进群。"
       ></QRCode>
@@ -58,4 +69,4 @@ function Show () {
   )
 }
 
-export default Show
+export default Group

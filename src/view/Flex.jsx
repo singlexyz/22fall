@@ -13,7 +13,7 @@ const FlexItem = styled.div`
 
 const FlexGrow = styled.div`
   margin: 3px;
-  flex-grow: 1;
+  flex: 1 0 auto;
 `
 
 export { Flex, FlexItem, FlexGrow }

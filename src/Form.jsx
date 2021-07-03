@@ -6,10 +6,10 @@ import Radio from './components/Radio'
 import Button from './components/Button'
 import axios from 'axios'
 import './Form.scss'
-import { useHistory } from 'react-router-dom'
 import DefaultLayout from './layout/DefaultLayout'
+import { useHistory } from 'react-router-dom'
 
-function Header() {
+const Header = () => {
   return (
     <header className="form__header">
       <h1 className="form__title">寄托天下22fall申请交流群</h1>
@@ -18,7 +18,7 @@ function Header() {
   )
 }
 
-function Rule() {
+const Rule = () => {
   return (
     <div className="rule">
       <h6 className="rule__title">寄托小群规</h6>
@@ -28,7 +28,7 @@ function Rule() {
   )
 }
 
-function Field({ children, title }) {
+const Field = ({ children, title }) => {
   return (
     <div className="field">
       {title && <p className="field__title">{title}</p>}
@@ -37,7 +37,7 @@ function Field({ children, title }) {
   )
 }
 
-function Checkbox({ text, value, name, checked }) {
+const Checkbox = ({ text, value, name, checked }) => {
   return (
     <label className="input__checkbox">
       <input className="input__el" defaultChecked value={value} name={name} type="checkbox" />
@@ -48,17 +48,23 @@ function Checkbox({ text, value, name, checked }) {
 
 function Form({ data }) {
   const { info, fields, token } = data
+  const history = useHistory()
+
   const [formdata, setFormdata] = useState(info)
+
   const onSubmit = (e) => {
     e.preventDefault()
     axios.post('/form/submit', {
       info: formdata, token
-    }).then(res => console.log(res))
+    }).then(({ data: { message, code } }) => {
+      if (code === 200) {
+      } else {
+        alert(message)
+      }
+    })
   }
 
   const onChange = (key, value) => setFormdata({ ...formdata, [key]: value })
-
-  const history = useHistory()
 
   return (
     <DefaultLayout>
@@ -66,54 +72,54 @@ function Form({ data }) {
         <Header onClick={() => history.push('/feedback')} />
         <pre>{JSON.stringify(formdata, null, 2)}</pre>
         <AnimateSharedLayout>
-        {
-        fields.map(({ type, field, title, placeholder, choices }, index) => {
           {
-            switch (type) {
-            case 'text':
-            return (
-              <Field key={field} title={title}>
-                <input
-                  value={formdata[field]}
-                  onInput={(e) => onChange(field, e.target.value)}
-                  placeholder={placeholder} type="text" className="input__text" />
-              </Field>
-            )
-            case 'radio':
-            return (
-              <Field key={field} title={title}>
-                <Radio field={field} onChange={onChange} value={formdata[field]} values={choices} />
-                <AnimatePresence exitBeforeEnter>
-                {
-                  formdata[field] === '*'
-                    && <motion.input
-                      layout
-                      initial={{ opacity: 0, scale: 0 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0 }}
-                      style={{ marginTop: '6px' }}
-                      value={formdata[field + '_other'] || ''}
-                      onInput={(e) => onChange(field + '_other', e.target.value)}
-                      placeholder={placeholder} type="text" className="input__text" />
-                }
-                </AnimatePresence>
-              </Field>
-            )
-            case 'select':
-            return (
-              <Field key={field} title={title}>
-                {
-                field === 'highesteducation' ?
-                <AdaSelect onChange={onChange} field={field} value={formdata[field]} values={choices} />
-                :
-                <Select onChange={onChange} field={field} value={formdata[field]} values={choices} />
-                }
-              </Field>
-            )
+          fields.map(({ type, field, title, placeholder, choices }, index) => {
+            {
+              switch (type) {
+              case 'text':
+              return (
+                <Field key={field} title={title}>
+                  <input
+                    value={formdata[field]}
+                    onInput={(e) => onChange(field, e.target.value)}
+                    placeholder={placeholder} type="text" className="input__text" />
+                </Field>
+              )
+              case 'radio':
+              return (
+                <Field key={field} title={title}>
+                  <Radio field={field} onChange={onChange} value={formdata[field]} values={choices} />
+                  <AnimatePresence exitBeforeEnter>
+                    {
+                    formdata[field] === '*'
+                      && <motion.input
+                        layout
+                        initial={{ opacity: 0, scale: 0 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0 }}
+                        style={{ marginTop: '6px' }}
+                        value={formdata[field + '_other'] || ''}
+                        onInput={(e) => onChange(field + '_other', e.target.value)}
+                        placeholder={placeholder} type="text" className="input__text" />
+                    }
+                  </AnimatePresence>
+                </Field>
+              )
+              case 'select':
+              return (
+                <Field key={field} title={title}>
+                  {
+                  field === 'highesteducation' ?
+                  <AdaSelect onChange={onChange} field={field} value={formdata[field]} values={choices} />
+                  :
+                  <Select onChange={onChange} field={field} value={formdata[field]} values={choices} />
+                  }
+                </Field>
+              )
+              }
             }
+          })
           }
-        })
-        }
         </AnimateSharedLayout>
         <Rule />
         <Field>

@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { Listbox } from '@headlessui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChevronDown, faCheck } from '@fortawesome/free-solid-svg-icons'
+import { faChevronDown, faChevronUp, faCheck } from '@fortawesome/free-solid-svg-icons'
 import { Flex, FlexGrow } from '../view/Flex'
-import { motion, AnimatePresence, AnimateSharedLayout } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import './AdaSelect.scss'
 
 function AdaSelect({ value, values, onChange, field }) {
@@ -28,8 +28,20 @@ function AdaSelect({ value, values, onChange, field }) {
     const wrap = { }
     const modal = { 
       initial: { opacity: 0 },
-      animate: { opacity: 1 },
-      exit: { opacity: 0 }
+      animate: {
+        opacity: 1,
+        transition: {
+          ease: 'linear',
+          duration: 0.1
+        }
+      },
+      exit: {
+        opacity: 0,
+        transition: {
+          ease: 'linear',
+          duration: 0.1
+        }
+      }
     }
     const ul = { 
       initial: { y: '100%' },
@@ -52,10 +64,10 @@ function AdaSelect({ value, values, onChange, field }) {
     }
     return <Listbox as="div" className={`AdaSelect`} value={value} onChange={({ value }) => onChange(field, value)}>
       {({ open }) => (
-        <div>
+        <>
           <Listbox.Button className={ `AdaSelect__trigger ${open ? 'AdaSelect__trigger--open' : ''}` }>
             {value.name ? value.name : '请选择'}
-            <FontAwesomeIcon className="Select__trigger-icon" icon={faChevronDown}></FontAwesomeIcon>
+            <FontAwesomeIcon className="Select__trigger-icon" icon={open ? faChevronUp : faChevronDown}></FontAwesomeIcon>
           </Listbox.Button>
           <AnimatePresence exitBeforeEnter>
           {
@@ -68,7 +80,6 @@ function AdaSelect({ value, values, onChange, field }) {
                 as={motion.div}
                 variants={modal}
                 key={prefix + '-modal'}
-                transition={{ ease: 'linear', duration: .2 }}
                 className="AdaSelect__modal" />
               <motion.ul
                 variants={ul}
@@ -77,9 +88,9 @@ function AdaSelect({ value, values, onChange, field }) {
                 className="AdaSelect__options">
                 { options && options.map((item) => (
                   <Listbox.Option as={React.Fragment} key={item.value} value={item}>
-                    {({ selected }) => ( 
+                    {({ active, selected }) => ( 
                       <li
-                        className={ `AdaSelect__option ${selected ? 'AdaSelect__option--selected' : ''}` }>
+                        className={ `AdaSelect__option ${active ? 'AdaSelect__option--active' : ''} ${selected ? 'AdaSelect__option--selected' : ''}` }>
                         <motion.div
                           variants={div}>
                           {selected && <FontAwesomeIcon className="icon" icon={faCheck} />}
@@ -94,17 +105,17 @@ function AdaSelect({ value, values, onChange, field }) {
             </Listbox.Options>
           }
           </AnimatePresence>
-        </div>
+        </>
       )}
     </Listbox>
   }
 
   return (
     <Flex>
-      <FlexGrow>
+      <FlexGrow style={{ padding: 3, width: '50%', margin: 0 } }>
         <Selector prefix="first" options={first} value={firstValue} />
       </FlexGrow>
-      <FlexGrow>
+      <FlexGrow style={{ padding: 3, width: '50%', margin: 0 } }>
         <Selector prefix="second" options={second} value={secondValue} />
       </FlexGrow>
     </Flex>
