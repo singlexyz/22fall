@@ -4,7 +4,7 @@ import { RadioGroup, Switch } from '@headlessui/react'
 import { motion, AnimatePresence, AnimateSharedLayout } from 'framer-motion'
 import Button from './Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCheck } from '@fortawesome/free-solid-svg-icons'
+import { faCheck, faChevronRight } from '@fortawesome/free-solid-svg-icons'
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons'
 
 const Container = styled(motion.div)`
@@ -45,7 +45,22 @@ const Footer = styled(motion.div)`
 `
 
 const Trigger = styled.button`
-
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  display: flex;
+  color: #666;
+  cursor: pointer;
+  width: 100%;
+  height: 44px;
+  line-height: 44px;
+  align-items: center;
+  padding: 0 15px;
+  background-color: transparent;
+  &:hover {
+    border-color: #4a66fa;
+    color: #4a66fa;
+  }
+  .icon { margin-left: auto; }
 `
 
 const Cate = styled.ul`
@@ -209,9 +224,6 @@ function GroupPicker ({ groups, field, onChange }) {
 
   useEffect(() => {
     updateSelectedGroup()
-  }, [state])
-
-  useEffect(() => {
     updateEachSelectedCount()
   }, [state])
 
@@ -242,9 +254,12 @@ function GroupPicker ({ groups, field, onChange }) {
 
   return (
     <motion.div>
-      <Trigger type="button" onClick={() => setIsOpen(true)}>爸爸快来点我</Trigger>
+      <Trigger type="button" onClick={() => setIsOpen(true)}>
+        请选择
+        <FontAwesomeIcon className="icon" icon={faChevronRight} />
+      </Trigger>
       {
-        selectedGroup.length && <SelectedGroupList>
+        selectedGroup.length > 0 && <SelectedGroupList>
         {
           selectedGroup.map(({ name, cid, id }) => (
             <SelectedGroupItem key={id}>

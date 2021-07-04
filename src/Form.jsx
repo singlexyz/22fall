@@ -18,31 +18,12 @@ const Header = () => {
   )
 }
 
-const Rule = () => {
-  return (
-    <div className="rule">
-      <h6 className="rule__title">寄托小群规</h6>
-      <p className="rule__term">1、禁止任在群内各种广告“各类无关二维码，拉群，链接，名片，小程序，助力，诱导加微信等”，违反会被T群，拉黑。</p>
-      <p className="rule__term">2、进群后请按群欢迎语尽快修改群内昵称；</p>
-    </div>
-  )
-}
-
 const Field = ({ children, title }) => {
   return (
     <div className="field">
       {title && <p className="field__title">{title}</p>}
       {children}
     </div>
-  )
-}
-
-const Checkbox = ({ text, value, name, checked }) => {
-  return (
-    <label className="input__checkbox">
-      <input className="input__el" defaultChecked value={value} name={name} type="checkbox" />
-      <span className="input__view">{text}</span>
-    </label>
   )
 }
 
@@ -56,8 +37,11 @@ function Form({ data }) {
     e.preventDefault()
     axios.post('/form/submit', {
       info: formdata, token
+    }, {
+      headers: { authorization: '58b5cc72ae86e1b28c632fd4f9b4759f' } 
     }).then(({ data: { message, code } }) => {
       if (code === 200) {
+        history.replace('/group')
       } else {
         alert(message)
       }
@@ -121,12 +105,6 @@ function Form({ data }) {
           })
           }
         </AnimateSharedLayout>
-        <Rule />
-        <Field>
-          <Checkbox name="policy" text={(
-            <span className="policy">我已认真阅读并同意<i className="hl">《寄托小群规》</i></span>
-          )} />
-        </Field>
         <Button type="submit" primary>提交</Button>
       </form>
     </DefaultLayout>
