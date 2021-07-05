@@ -12,14 +12,13 @@ const StyledButton = styled(Button)`
   &[disabled] { opacity: 0.5; }
 `
 
-function MotionButton ({ children, loading, ...rest }) {
-  const [isLoading, setIsLoading] = useState(false)
+function MotionButton ({ children, pending, ...rest }) {
   return (
-    <StyledButton disabled={isLoading} {...rest} onClick={() => setIsLoading(!isLoading)}>
+    <StyledButton disabled={pending} {...rest}>
       <AnimateSharedLayout>
       <motion.span style={{ display: 'inline-block' }} layout>{children}</motion.span>
       <AnimatePresence>
-        { isLoading && (
+        { pending && (
           <MotionIcon 
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}

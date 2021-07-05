@@ -13,6 +13,7 @@ function Success () {
   // 终于填完了
   return (
     <DefaultLayout image={successBanner}>
+      <h1>制作中。。。</h1>
       <QRCode
         image="https://picsum.photos/400"
         desc1={<Desc>微信扫码添加<span className="wechat">【葱哥的助手】</span></Desc>}

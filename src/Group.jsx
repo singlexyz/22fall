@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 import styled from 'styled-components'
 import { useHistory } from 'react-router-dom'
 import DefaultLayout from './layout/DefaultLayout'
@@ -35,7 +36,7 @@ const Field = ({ children, title }) => {
   )
 }
 
-const Checkbox = ({ text, value, name, checked }) => {
+const Checkbox = ({ text, value, name }) => {
   return (
     <label className="input__checkbox">
       <input className="input__el" defaultChecked value={value} name={name} type="checkbox" />
@@ -61,36 +62,32 @@ function Group () {
   const [formdata, setFormdata] = useState({})
   const [isPending, setIsPending] = useState(false)
   const history = useHistory()
-  function onChange (groups) {
-    console.log(formdata)
-    setFormdata({ ...formdata, info: { groups } })
+  function onChange (group) {
+    setFormdata({ ...formdata, info: { group } })
   }
 
   const onSubmit = async (e) => {
     e.preventDefault()
-    history.push('/success')
-    setIsPending(!isPending)
-    setTimeout(() => {
-      setIsPending(false)
-    }, 1000)
-    return
-    axios.post('/form/submit', {
-      ...formdata
-    }, { headers: { authorization: '58b5cc72ae86e1b28c632fd4f9b4759f' } })
-    .then(({ data: { message, code } }) => {
-        if (code === 200) {
-          history.replace('/group')
-        } else {
-          alert(message)
-        }
-      })
+    setIsPending(true)
+    try {
+      const { data: { code, message } } = await axios.post('/form/submit', { ...formdata, token: data.token }, { headers: { authorization: '58b5cc72ae86e1b28c632fd4f9b4759f' } })
+      if (code === 200) {
+        history.replace('/success')
+      } else {
+        alert(message)
+      }
+  } catch (e) {
+    console.log(e)
+  } finally {
+    setIsPending(false)
   }
+}
 
   useEffect(async () => {
     const { code, data } = await fetchGroupList()
     if (code === 200) { 
       setData(data)
-      setFormdata({ info: data.info, token: data.token })
+      setFormdata({ info: data.info })
     } else {
       // 未填表进入时，叫用户滚去填表
       history.replace('/');
@@ -101,10 +98,9 @@ function Group () {
     data ?
     (
       <DefaultLayout>
-        <pre>{JSON.stringify(formdata, null, 2)}</pre>
         <h6>
           <FontAwesomeIcon className="icon" icon={faAddressCard}></FontAwesomeIcon>
-          微信号：JaneDeng
+          微信号：{data.info.wechat}
         </h6>
         <Hr />
         <h6>

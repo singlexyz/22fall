@@ -22,7 +22,7 @@ const Field = ({ children, title }) => {
   return (
     <div className="field">
       {title && <p className="field__title">{title}</p>}
-      {children}
+       {children}
     </div>
   )
 }

@@ -322,7 +322,7 @@ function GroupPicker ({ groups, field, onChange }) {
                       exit={{ opacity: 0, y: 20 }}
                       transition={{ delay: index * .02, ease: [.4, 0, .2, 1] }}
                     >
-                      {name} {id}
+                      {name}
                       <FontAwesomeIcon className="icon" icon={faCheck} />
                     </GroupItem>
                   ))
