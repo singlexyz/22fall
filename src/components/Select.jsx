@@ -8,7 +8,9 @@ function Select({ value, values, onChange, field }) {
   return (
     <Listbox as="div" className={`Select`} value={value} onChange={(value) => onChange(field, value)}>
       <Listbox.Button className="Select__trigger">
-        {value ? values.filter(v => v.value === value)[0].name : '请选择'}
+        {
+          value ? values.filter(v => v.value === value)[0].name : '请选择'
+        }
         <FontAwesomeIcon className="Select__trigger-icon" icon={faChevronDown}></FontAwesomeIcon>
       </Listbox.Button>
       <Listbox.Options as="ul" className="Select__options">

@@ -41,7 +41,7 @@ function Form({ data }) {
       headers: { authorization: '58b5cc72ae86e1b28c632fd4f9b4759f' } 
     }).then(({ data: { message, code } }) => {
       if (code === 200) {
-        history.replace('/group')
+        history.replace('group')
       } else {
         alert(message)
       }

@@ -16,7 +16,7 @@ const StyledLoading = styled.div`
   text-transform: uppercase; font-size: 1.5rem;
 `
 
-const Loading = () => (<StyledLoading>Loading...</StyledLoading>)
+const Loading = () => (<></>)
 
 function App() {
   return (

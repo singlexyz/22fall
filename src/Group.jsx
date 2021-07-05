@@ -72,7 +72,7 @@ function Group () {
     try {
       const { data: { code, message } } = await axios.post('/form/submit', { ...formdata, token: data.token }, { headers: { authorization: '58b5cc72ae86e1b28c632fd4f9b4759f' } })
       if (code === 200) {
-        history.replace('/success')
+        history.push('/success')
       } else {
         alert(message)
       }
@@ -84,8 +84,13 @@ function Group () {
 }
 
   useEffect(async () => {
-    const { code, data } = await fetchGroupList()
+    const { message, code, data } = await fetchGroupList()
+
     if (code === 200) { 
+      if (data.info.group.length > 0 ) {
+        // history.replace('/qr');
+        // return;
+      }
       setData(data)
       setFormdata({ info: data.info })
     } else {

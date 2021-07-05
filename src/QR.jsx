@@ -1,10 +1,12 @@
-import React from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import styled from 'styled-components'
 import Select from './components/Select'
 import Button from './components/Button'
 import QRCode from './view/QRCode'
+import { Link, useHistory } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons'
+import { fetchSelectedGroup } from './api'
 
 const Page = styled.div`
   background-color: #4860fe;
@@ -50,29 +52,43 @@ const Subprompt = styled.p`
 `
 
 function QR () {
-  function onChange () {
+  function onChange (_field, value) {
+    setData({
+      ...data,
+      selected: data.groupList.find(({id}) => id === value)
+    })
   }
+  const history = useHistory()
+  const [data, setData] = useState(null)
+  useEffect(async () => {
+    const { code, data } = await fetchSelectedGroup()
+    if (code === 200) { 
+      setData({
+        ...data,
+        selected: data.groupList[0],
+        groupList: data.groupList.map((v) => ({ ...v, value: v.id }))
+      })
+    } else {
+      // 未填表进入时，叫用户滚去填表
+      history.replace('/');
+    }
+  }, [])
   return (
-    <Page>
+    data && <Page>
       <Layout>
       <Tile>
         <Prompt>你已勾选的群有：</Prompt>
         <Subprompt>你勾选的群在下方，出现二维码后立即扫码进群</Subprompt>
-          <Select  onChange={onChange} values={[
-            "霸道总裁爱上我",
-            "郭敬明的108个秘密",
-            "如何患上精神疾病"
-          ]}>
-          </Select>
-        <QRCode image="https://picsum.photos/300" desc="扫码进群" />
+          <Select onChange={onChange} value={data.selected.id} values={data.groupList} />
+        <QRCode image={data.selected.image} desc="扫码进群" />
       </Tile>
       <Tile>
         <Desc>若扫码无法进群，请点击下方按钮：</Desc>
-        <Button invaild>无法进群</Button>
+        <Button onClick={() => history.push('/feedback')} invaild>无法进群</Button>
       </Tile>
       <Tile>
         <Desc>还有群想进？点这里填表</Desc>
-        <Button add>
+        <Button onClick={() => history.push('/group')} add>
           <FontAwesomeIcon className="icon" icon={faPlusCircle}></FontAwesomeIcon>
           添加
         </Button>

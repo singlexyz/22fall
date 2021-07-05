@@ -1,7 +1,9 @@
-import React from 'react'
+import React  from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import styled from 'styled-components'
 import { faWeixin } from '@fortawesome/free-brands-svg-icons'
+import Spinner from './Spinner'
+import ImagePreload from '../components/ImagePreload'
 
 const Code = styled.div`
   border-radius: 5px;
@@ -10,7 +12,12 @@ const Code = styled.div`
   background-color: #ffffff;
   margin: ${() => 40 / 16}rem auto ${() => 1 / 16}rem;
   width: 11.375rem;
+  height: 11.375rem;
   padding: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #4A66FA;
   img {
     width: 100%; height: 100%;
     aspect-ratio: 1;
@@ -38,12 +45,13 @@ const Desc2 = styled.p`
   color: #999;
 `
 
-
 function QRCode ({ image, desc1, desc2 }) {
   return (
     <Wrap>
       <Code>
-        <img src={image} />
+        { image && <ImagePreload key={image} src={image}>
+          <Spinner size="lg" />
+        </ImagePreload> }
       </Code>
       <Desc>
         { 
