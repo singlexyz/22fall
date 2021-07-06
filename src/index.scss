@@ -6,7 +6,10 @@ img { vertical-align: bottom; max-width: 100%; }
 body { margin: 0 auto; color: #333; }
 
 h1, h2, h3, h4, h5, h6 { font-size: inherit; }
+
 .icon { margin-right: .35em; }
+
+.overflow-hidden { overflow: hidden; }
 
 .trigger {
   border: 1px solid #ccc;

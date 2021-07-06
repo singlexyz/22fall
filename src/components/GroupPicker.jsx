@@ -144,6 +144,7 @@ const GroupItem = styled.li`
     .icon { color: #4a66fa; }
   }
   &.disabled { opacity: 0.5; cursor: not-allowed; }
+  &.limited:not(.checked) { opacity: 0.5; cursor: not-allowed; }
 `
 
 const Limit = styled.span`
@@ -168,28 +169,52 @@ const SelectedGroupItem = styled.li`
 `
 
 
-function GroupPicker ({ groups, field, onChange }) {
-  const [state, setState] = useState(updateEachCount(groups))
-
-  const [currentCateId, setCurrentCateId] = useState(state[0].id)
-  const [currentCate, setCurrentCate] = useState(state[0])
-
+function GroupPicker ({ groups, onChange }) {
+  const [state, setState] = useState(updatedCount(groups))
+  const [cateId, setCateId] = useState(state[0].id)
+  const [cate, setCate] = useState(state[0])
   const [isOpen, setIsOpen] = useState(false)
 
-  function updateEachCount (groups = state) {
-    return groups.map(v => {
-      const count = v.children.reduce((a,b) => {
-        return (b.checked ? ++a  : a)
-      }, 0)
-      return { ...v, count, limited: v.restrict > 0 && count >= v.restrict }
+  // 分类下添加已选数量及限制
+  function updatedCount (groups) {
+    const szText = `首战`
+    const zxText = `专项`
+    return groups.map(group => {
+      const count = group.children.reduce((a,b) => b.checked ? ++a : a, 0)
+      const szLimit = group.children.find(v => {
+        return v.checked && v.name.includes(szText)
+      })
+      const zxLimit = group.children.find(v => {
+        return v.checked && v.name.includes(zxText)
+      })
+      let children = null
+      if (szLimit) {
+        children = group.children.map(v => {
+          if (v.name.includes(szText)) {
+            return { ...v, disabled: v.id === szLimit.id && !v.checked ? false : v.disabled }
+          }
+          return v
+        })
+      } else if (zxLimit) {
+        children = group.children.map(v => {
+          if (v.name.includes(zxText)) {
+            return { ...v, disabled: v.id === zxLimit.id && !v.checked ? false : v.disabled }
+          }
+          return v
+        })
+      } else {
+        children = group.children.map(v => {
+          return { ...v, disabled: v.disabled }
+        })
+      }
+      return { 
+        ...group,
+        count, 
+        children,
+        limit: group.restrict > 0 && count >= group.restrict
+      }
     })
   }
-
-  // 选择群数量总计
-  const [totalSelectedCount, setTotalSelectedCount] = useState(0)
-
-  // 分类下选择群总计
-  const [eachSelectedCount, setEachSelectedCount] = useState(0)
 
   // 选择的群id
   const [selectedGroup, setSelectedGroup] = useState([])
@@ -205,42 +230,51 @@ function GroupPicker ({ groups, field, onChange }) {
   }
 
   useEffect(() => {
-    setCurrentCate(state.find(v => v.id === currentCateId))
-  }, [currentCateId])
-
-  useEffect(() => {
     onChange(selectedGroup.map(({id}) => id));
-    setCurrentCate(state.find(v => v.id === currentCateId))
   }, [selectedGroup])
 
   useEffect(() => {
     updateSelectedGroup()
-    updateEachCount()
+    setCate(state.find(v => v.id === cateId))
   }, [state])
 
-  const selectGroup = (cateid, groupid, disabled) => {
-    if (disabled) { return; }
+  useEffect(() => {
+    setCate(state.find(v => v.id === cateId))
+  }, [cateId])
+
+  const selectGroup = (cateid, groupid, disabled, checked) => {
+    if (( cate.limit && !checked) || disabled) { 
+      console.log('out')
+      return;
+    }
+
+    console.log('in')
     const newState = state.map(cate => {
-        if (cate.id === cateid) {
-          return {
-             ...cate,
-             children: cate.children.map((group) => {
-               if (group.id === groupid) {
-                 return { ...group, checked: !group.checked }
-               }
-               return group
-             })
-          }
+      if (cate.id === cateid) {
+        return {
+          ...cate,
+          children: cate.children.map((group) => {
+            if (group.id === groupid) {
+              return { ...group, checked: !group.checked }
+            }
+            return group
+          })
         }
-        return cate
-      })
-    setState(newState)
+      }
+      return cate
+    }) 
+    setState(updatedCount(newState))
   }
 
-  const removeSelectedGroup = (cid, id, checked, disabled) => {
+  const removeSelectedGroup = (cid, id, disabled, checked) => {
     if (disabled) { return }
-    selectGroup(cid, id, checked)
+    selectGroup(cid, id, disabled, checked)
   }
+
+  useEffect(() => {
+    window.scrollTo(0,0)
+    document.body.classList[isOpen ? 'add' : 'remove']('overflow-hidden')
+  }, [isOpen])
 
   return (
     <motion.div>
@@ -251,10 +285,10 @@ function GroupPicker ({ groups, field, onChange }) {
       {
         selectedGroup.length > 0 && <SelectedGroupList>
         {
-          selectedGroup.map(({ name, cid, id, disabled }) => (
+          selectedGroup.map(({ name, cid, id, disabled, checked }) => (
             <SelectedGroupItem disabled={disabled} key={id}>
               {name}
-              <button className="button" onClick={() => removeSelectedGroup(cid, id, true, disabled)}>
+              <button className="button" onClick={() => removeSelectedGroup(cid, id, disabled, checked)}>
                 <FontAwesomeIcon className="icon" icon={faTrashAlt} />
               </button>
             </SelectedGroupItem>
@@ -274,9 +308,9 @@ function GroupPicker ({ groups, field, onChange }) {
             <Selector>
               <AnimateSharedLayout>
                 <Cate>
-                  <RadioGroup value={currentCateId} onChange={setCurrentCateId}>
+                  <RadioGroup value={cateId} onChange={setCateId}>
                     {
-                    state.map(({ name, id, children, count, restrict }, index) => (
+                    state.map(({ name, count, id, children }, index) => (
                       children.length > 0 && <RadioGroup.Option key={id} as={React.Fragment} value={id}>
                         {({ checked }) => (
                           <CateItem
@@ -288,7 +322,7 @@ function GroupPicker ({ groups, field, onChange }) {
                             { checked && <CateSelected transtion={{ duration: .2 }} layoutId={`cate-selected`} /> }
                             <span style={{ position: 'relative', zIndex: 10 }}>{name}</span>
                             { 
-                              (restrict > 0 && count > 0) && <span className="count"> {count} </span>
+                              count > 0 && <span className="count"> {count} </span>
                             }
                           </CateItem>
                         )}
@@ -300,11 +334,11 @@ function GroupPicker ({ groups, field, onChange }) {
               </AnimateSharedLayout>
               <Group>
                 { 
-                  state.find(v => v.id === currentCateId).children.map(({ name, checked, id, cid, disabled }, index) => (
+                  cate.children.map(({ name, checked, id, cid, disabled }, index) => (
                     <GroupItem
                       key={id}
-                      className={`${disabled ? 'disabled' : ''} ${checked ? 'checked' : ''}`}
-                      onClick={() => selectGroup(cid, id, disabled)}
+                      className={`${cate.limit ? 'limited' : ''} ${disabled ? 'disabled' : ''} ${checked ? 'checked' : ''}`}
+                      onClick={() => selectGroup(cid, id, disabled, checked)}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 20 }}
@@ -325,10 +359,9 @@ function GroupPicker ({ groups, field, onChange }) {
             >
               <Limit>
                 {
-                  state.find(v => v.id === currentCateId).restrict > 0 &&
-                  `限进 ${ state.find(v => v.id === currentCateId).restrict} 个群，`
+                  cate.restrict > 0 && `限进 ${cate.restrict} 个群，`
                 }
-                已选 <i className="highlight">{JSON.stringify(currentCate)}</i> 个</Limit>
+                已选 <i className="highlight">{cate.count}</i> 个</Limit>
               <Button type="button" className="button" onClick={() => setIsOpen(false)}>返回</Button>
               <Button type="button" className="button" primary onClick={() => setIsOpen(false)}>确定</Button>
             </Footer>

@@ -48,10 +48,10 @@ $border: #d6d7dc;
   &__option {
     cursor: pointer;
     @extend %option;
-    height: 55px; 
     text-align: center;
-    line-height: 55px;
     margin-bottom: 1px;
+    font-size: 14px;
+    padding: 17px 15px;
     .icon { margin-right: .5em; }
   }
   &__option--active, &__option--selected {

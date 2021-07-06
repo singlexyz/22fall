@@ -1,9 +1,9 @@
-import React, { useState, useContext } from 'react'
-import { motion, AnimatePresence,AnimateSharedLayout } from 'framer-motion'
+import React, { useState } from 'react'
+import { motion, AnimateSharedLayout } from 'framer-motion'
 import AdaSelect from './components/AdaSelect'
 import Select from './components/Select'
 import Radio from './components/Radio'
-import Button from './components/Button'
+import MotionButton from './components/MotionButton'
 import axios from 'axios'
 import './Form.scss'
 import DefaultLayout from './layout/DefaultLayout'
@@ -29,23 +29,26 @@ const Field = ({ children, title }) => {
 
 function Form({ data }) {
   const { info, fields, token } = data
+  const [isPending, setIsPending] = useState(false)
   const history = useHistory()
 
   const [formdata, setFormdata] = useState(info)
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault()
-    axios.post('/form/submit', {
-      info: formdata, token
-    }, {
-      headers: { authorization: '58b5cc72ae86e1b28c632fd4f9b4759f' } 
-    }).then(({ data: { message, code } }) => {
+    setIsPending(true)
+    try {
+      const { data: { message, code } } = await axios.post('/form/submit', { info: formdata, token }, { headers: { authorization: '58b5cc72ae86e1b28c632fd4f9b4759f' } })
       if (code === 200) {
         history.replace('/group')
       } else {
         alert(message)
       }
-    })
+    } catch (e) {
+      console.log(e)
+    } finally {
+      setIsPending(false)
+    }
   }
 
   const onChange = (key, value) => setFormdata({ ...formdata, [key]: value })
@@ -56,7 +59,7 @@ function Form({ data }) {
         <Header onClick={() => history.push('/feedback')} />
         <AnimateSharedLayout>
           {
-          fields.map(({ type, field, title, placeholder, choices }, index) => {
+          fields.map(({ type, field, title, placeholder, choices }, _index) => {
             {
               switch (type) {
               case 'text':
@@ -90,7 +93,7 @@ function Form({ data }) {
           })
           }
         </AnimateSharedLayout>
-        <Button type="submit" primary>提交</Button>
+        <MotionButton onClick={onSubmit} pending={isPending} type="button" primary>提交</MotionButton>
       </motion.form>
     </DefaultLayout>
   )
