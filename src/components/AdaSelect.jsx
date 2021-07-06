@@ -17,7 +17,11 @@ function AdaSelect({ value, values, onChange, field }) {
     setFirstValue(fv)
     setSecondValue( value.includes('.') ? values.find(item => item.value === value) : {} )
     setFirst( values.filter(({ value }) => (!value.includes('.'))) )
-    setSecond( values.filter(v => v.value.search(fv.value) === 0 && v.value !== fv.value) )
+    setSecond(
+      fv.value ?
+      values.filter(v => v.value.search(fv.value) === 0 && v.value !== fv.value)
+      : []
+    )
   }
 
   useMemo(() => {
@@ -62,7 +66,8 @@ function AdaSelect({ value, values, onChange, field }) {
       },
       exit: { opacity: 0, y: '100%' }
     }
-    return <Listbox as="div" className={`AdaSelect`} value={value} onChange={({ value }) => onChange(field, value)}>
+    const isDisabled = options.length === 0
+    return <Listbox as="div" disabled={isDisabled} className={`AdaSelect ${isDisabled ? 'AdaSelect--disabled' : ''}`} value={value} onChange={({ value }) => onChange(field, value)}>
       {({ open }) => (
         <>
           <Listbox.Button className={ `AdaSelect__trigger ${open ? 'AdaSelect__trigger--open' : ''}` }>
@@ -84,7 +89,7 @@ function AdaSelect({ value, values, onChange, field }) {
               <motion.ul
                 variants={ul}
                 key={prefix + '-options'}
-                transition={{ ease: [ 0.8, 0, 0, 1 ], duration: .3, delay: 0.05 }}
+                transition={{ ease: [ 0.8, 0, 0, 1 ], duration: .3, delay: 0.03 }}
                 className="AdaSelect__options">
                 { options && options.map((item) => (
                   <Listbox.Option as={React.Fragment} key={item.value} value={item}>

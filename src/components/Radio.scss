@@ -3,6 +3,10 @@ $border: #d6d7dc;
 
 .Radio {
   font-size: .8125rem;
+  display: flex;
+  list-style: none;
+  flex-flow: row wrap;
+  margin: -3px;
   &__wrap {
     &:focus { outline: none; }
   }
@@ -14,15 +18,47 @@ $border: #d6d7dc;
     border: 1px solid $primary;
     border-radius: 10086rem;
   }
+  &__wrap {
+    flex: 1 1 auto;
+    margin: 3px;
+  }
+  &__other {
+    display: flex;
+    margin: 0;
+    flex-flow: row nowrap;
+    .Radio__option, .Radio__option--other {
+      flex: 0 1 auto; 
+      margin: 3px;
+    }
+  }
+  &__input {
+    border: 1px solid $primary;
+    background-color: white;
+    width: 100%;
+    border-radius: 4px;
+    height: 33px;
+    font-size: .8125rem;
+    padding: 1em 0.846153846em;
+    -webkit-appearance: none;
+    flex-grow: 0;
+    &--hidden {
+      visibility: hidden;
+    }
+    &:focus {
+      outline: none;
+      border-color: $primary; }
+  }
   &__option {
     outline: none;
+    white-space: nowrap;
     position: relative;
     border: 1px solid $border;
     cursor: pointer;
-    border-radius: 10086rem;
+    border-radius: 10000px;
     display: block;
     text-align: center;
-    height: 33px; line-height: 33px;
+    height: 33px;
+    line-height: 33px;
     padding: 0 23px;
     &--checked {
       color: $primary;

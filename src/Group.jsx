@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAddressCard, faPlusSquare } from '@fortawesome/free-regular-svg-icons'
 import GroupPicker from './components/GroupPicker'
 import LoadingScreen from './view/LoadingScreen'
+import PageTransition from './components/PageTransition'
 import './Form.scss'
 import { fetchGroupList } from './api'
 
@@ -18,13 +19,13 @@ const Desc = styled.span`
 `
 
 const Hr = styled.hr`
-  margin: 1.25rem 0;
+  margin: 1rem 0;
   border: 0;
   border-top: 1px solid #e1e1e1;
 `
 
 const Wrap = styled.div`
-  margin: 6px 0 30px;
+  margin: 10px 0 20px;
 `
 
 const Field = ({ children, title }) => {
@@ -45,23 +46,42 @@ const Checkbox = ({ text, value, name }) => {
   )
 }
 
+const Rule = styled.section`
+  border-radius: ${() => 20/16}rem;
+  background-color: #F6F7FF;
+  padding: 1.25rem 2.25rem 1.25rem 1.875rem;
+  text-align: left;
+`
 
-const Rule = () => {
-  return (
-    <div className="rule">
-      <h6 className="rule__title">寄托小群规</h6>
-      <p className="rule__term">1、禁止任在群内各种广告“各类无关二维码，拉群，链接，名片，小程序，助力，诱导加微信等”，违反会被T群，拉黑。</p>
-      <p className="rule__term">2、进群后请按群欢迎语尽快修改群内昵称；</p>
-    </div>
-  )
-}
+const RuleTitle = styled.h6`
+  text-align: center;
+  margin-bottom: .625rem;
+`
 
+const RuleTerm = styled.p`
+  color: #666;
+  font-size: .75rem;
+  line-height: 1.4;
+  & + & { margin-top: .625rem; }
+  &::before {
+    content: "";
+    background-color: #26d79f;
+    vertical-align: 1px;
+    display: inline-block;
+    border-radius: 50%;
+    width: .3125rem;
+    height: .3125rem;
+    margin-right: .5rem;
+  }
+  }
+`
 
 function Group () {
   const [data, setData] = useState(null)
   const [formdata, setFormdata] = useState({})
   const [isPending, setIsPending] = useState(false)
   const history = useHistory()
+  const [jump2qr, setJump2qr] = useState(false)
   function onChange (group) {
     setFormdata({ ...formdata, info: { group } })
   }
@@ -72,7 +92,7 @@ function Group () {
     try {
       const { data: { code, message } } = await axios.post('/form/submit', { ...formdata, token: data.token }, { headers: { authorization: '58b5cc72ae86e1b28c632fd4f9b4759f' } })
       if (code === 200) {
-        history.push('/success')
+        history.push(jump2qr ? '/qr' : '/success')
       } else {
         alert(message)
       }
@@ -86,11 +106,10 @@ function Group () {
   useEffect(async () => {
     const { message, code, data } = await fetchGroupList()
 
+    if (data.info.group.length > 0) {
+      setJump2qr(true)
+    }
     if (code === 200) { 
-      if (data.info.group.length > 0 ) {
-        // history.replace('/qr');
-        // return;
-      }
       setData(data)
       setFormdata({ info: data.info })
     } else {
@@ -102,6 +121,7 @@ function Group () {
   return (
     data ?
     (
+      <PageTransition>
       <DefaultLayout>
         <h6>
           <FontAwesomeIcon className="icon" icon={faAddressCard}></FontAwesomeIcon>
@@ -116,7 +136,12 @@ function Group () {
           <GroupPicker onChange={onChange} field='group' groups={data.groupList} />
         </Wrap>
 
-        <Rule />
+        <Rule>
+          <RuleTitle>寄托小群规</RuleTitle>
+          <RuleTerm>禁止任在群内各种广告“各类无关二维码，拉群，链接，名片，小程序，助力，诱导加微信等”，违反会被T群，拉黑。</RuleTerm>
+          <RuleTerm>进群后请按群欢迎语尽快修改群内昵称；</RuleTerm>
+        </Rule>
+
         <Field>
           <Checkbox name="policy" text={(
             <span className="policy">我已认真阅读并同意<i className="hl">《寄托小群规》</i></span>
@@ -129,6 +154,7 @@ function Group () {
           desc2="点击葱哥发给你的“进群入口”链接，扫码进群。"
         ></QRCode>
       </DefaultLayout>
+      </PageTransition>
     ) : <LoadingScreen /> )
 }
 

@@ -7,6 +7,7 @@ import { Link, useHistory } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons'
 import { fetchSelectedGroup } from './api'
+import PageTransition from './components/PageTransition'
 
 const Page = styled.div`
   background-color: #4860fe;
@@ -74,12 +75,12 @@ function QR () {
     }
   }, [])
   return (
-    data && <Page>
+    data && <PageTransition><Page>
       <Layout>
       <Tile>
         <Prompt>你已勾选的群有：</Prompt>
         <Subprompt>你勾选的群在下方，出现二维码后立即扫码进群</Subprompt>
-          <Select onChange={onChange} value={data.selected.id} values={data.groupList} />
+          <Select position="bottom" onChange={onChange} value={data.selected.id} values={data.groupList} />
         <QRCode image={data.selected.image} desc="扫码进群" />
       </Tile>
       <Tile>
@@ -88,13 +89,13 @@ function QR () {
       </Tile>
       <Tile>
         <Desc>还有群想进？点这里填表</Desc>
-        <Button onClick={() => history.push('/group')} add>
+        <Button onClick={() => history.push('/group', { qr: true })} add>
           <FontAwesomeIcon className="icon" icon={faPlusCircle}></FontAwesomeIcon>
           添加
         </Button>
       </Tile>
       </Layout>
-    </Page>
+    </Page></PageTransition>
   )
 }
 

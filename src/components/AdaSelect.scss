@@ -7,10 +7,6 @@ $border: #d6d7dc;
   padding: 0 15px;
   user-select: none;
   background-color: white;
-  &:hover {
-    border-color: $primary;
-    background-color: #ECEFFE;
-  }
   &:focus { outline: none; }
 }
 
@@ -19,6 +15,17 @@ $border: #d6d7dc;
   font-size: 0.8125rem;
   color: #333;
   cursor: pointer;
+  &--disabled { opacity: .5; }
+  &:not(.AdaSelect--disabled) {
+    .AdaSelect__option,
+    .AdaSelect__trigger{
+      &:hover {
+        border-color: $primary;
+        background-color: #ECEFFE;
+        color: $primary;
+      }
+    }
+  }
   &--flex {
     flex: 1 1 auto;
   }

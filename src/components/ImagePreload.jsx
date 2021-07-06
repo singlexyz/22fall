@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, MotionConfig, AnimatePresence } from 'framer-motion'
+import styled from 'styled-components'
+
+const Wrap = styled(motion.div)`
+  overflow: hidden;
+`
 
 function ImagePreload ({ children, src }) {
   const [loaded, setLoaded] = useState(false)
@@ -12,13 +17,11 @@ function ImagePreload ({ children, src }) {
   }, [])
 
   return (
-    <AnimatePresence exitBeforeEnter>
+    <AnimatePresence>
       {
-      loaded ? <motion.img
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ ease: [0.4, 0, .2, 1], duration: .4 }}
-        src={src} /> : children
+      loaded ? (
+        <motion.img initial={{ opacity: 0 }} animate={{ opacity: 1 }} src={src} />
+      ) : children
       }
     </AnimatePresence>
   )

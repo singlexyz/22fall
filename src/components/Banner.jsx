@@ -6,6 +6,7 @@ import defaultBanner from '../images/banner.png'
 const Aspect = styled.div`
   padding-top: 50.66666666666667%;
   position: relative;
+  background-color: #4a66fa;
   @supports (aspect-ratio: 1) {
     aspect-ratio: 750 / 380;
     padding-top: 0;
@@ -22,9 +23,9 @@ const Image = styled.img`
 
 function Banner({ image = defaultBanner }) {
   return (
-      <Aspect>
-        <Image src={image} />
-      </Aspect>
+    <Aspect>
+      <Image src={image} />
+    </Aspect>
   )
 }
 

@@ -24,7 +24,7 @@ function DefaultLayout ({ image, children }) {
     <Page
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      transition={{ ease: [.4, 0, .2, 1], duration: .5 }}
       >
       <Banner image={image} />
       <Content>

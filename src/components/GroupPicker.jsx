@@ -1,6 +1,6 @@
-import React, { useMemo, useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
-import { RadioGroup, Switch } from '@headlessui/react'
+import { RadioGroup } from '@headlessui/react'
 import { motion, AnimatePresence, AnimateSharedLayout } from 'framer-motion'
 import Button from './Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -8,8 +8,7 @@ import { faCheck, faChevronRight } from '@fortawesome/free-solid-svg-icons'
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons'
 
 const Container = styled(motion.div)`
-  min-height: 100vh;
-  width: 100%; height: 100%;
+  width: 100%; height: 100vh;
   left: 0; top: 0;
   background-color: white;
   position: fixed; width: 100%;
@@ -160,8 +159,12 @@ const SelectedGroupList = styled.ul`
 const SelectedGroupItem = styled.li`
   height: 44px; line-height: 44px; margin: 10px 0; padding: 0 15px;
   border-radius: 4px; background-color: #f7f7f7; display: flex;
-  .button { cursor: pointer; color: #666; background-color: transparent; margin-left: auto; width: 44px; border: 0; }
+  .button { color: #666; cursor: pointer; background-color: transparent; margin-left: auto; width: 44px; border: 0; }
   .icon { margin-right: 0; }
+  &[disabled] {
+    opacity: .6;
+    .button { cursor: not-allowed; }
+  }
 `
 
 
@@ -207,7 +210,7 @@ function GroupPicker ({ groups, field, onChange }) {
       state.reduce((a,b) => {
         return [ ...a, ...b.children.filter(({ checked }) => {
           if (checked) { return true }
-        }).map(({ id, name, cid }) => ({ cid, name, id}))]
+        }).map(({ id, name, cid, disabled }) => ({ disabled, cid, name, id}))]
       }, [])
     )
   }
@@ -248,7 +251,8 @@ function GroupPicker ({ groups, field, onChange }) {
     setState(newState)
   }
 
-  const removeSelectedGroup = (cid, id, checked) => {
+  const removeSelectedGroup = (cid, id, checked, disabled) => {
+    if (disabled) { return }
     selectGroup(cid, id, checked)
   }
 
@@ -261,10 +265,10 @@ function GroupPicker ({ groups, field, onChange }) {
       {
         selectedGroup.length > 0 && <SelectedGroupList>
         {
-          selectedGroup.map(({ name, cid, id }) => (
-            <SelectedGroupItem key={id}>
+          selectedGroup.map(({ name, cid, id, disabled }) => (
+            <SelectedGroupItem disabled={disabled} key={id}>
               {name}
-              <button className="button" onClick={() => removeSelectedGroup(cid, id, true)}>
+              <button className="button" onClick={() => removeSelectedGroup(cid, id, true, disabled)}>
                 <FontAwesomeIcon className="icon" icon={faTrashAlt} />
               </button>
             </SelectedGroupItem>
@@ -312,7 +316,7 @@ function GroupPicker ({ groups, field, onChange }) {
               </AnimateSharedLayout>
               <Group>
                 { 
-                  state.filter(({id}) => id === currentCate)[0].children.map(({ name, checked, id, cid }, index) => (
+                  state.filter(({id}) => id === currentCate)[0].children.map(({ name, checked, id, cid, disabled }, index) => (
                     <GroupItem
                       key={id}
                       className={`${selectedLimit ? 'disabled' : ''} ${checked ? 'checked' : ''}`}

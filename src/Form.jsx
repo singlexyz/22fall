@@ -41,7 +41,7 @@ function Form({ data }) {
       headers: { authorization: '58b5cc72ae86e1b28c632fd4f9b4759f' } 
     }).then(({ data: { message, code } }) => {
       if (code === 200) {
-        history.replace('group')
+        history.replace('/group')
       } else {
         alert(message)
       }
@@ -52,9 +52,8 @@ function Form({ data }) {
 
   return (
     <DefaultLayout>
-      <form className="form" onSubmit={(e) => onSubmit(e)}>
+      <motion.form className="form" onSubmit={(e) => onSubmit(e)}>
         <Header onClick={() => history.push('/feedback')} />
-        <pre>{JSON.stringify(formdata, null, 2)}</pre>
         <AnimateSharedLayout>
           {
           fields.map(({ type, field, title, placeholder, choices }, index) => {
@@ -72,21 +71,7 @@ function Form({ data }) {
               case 'radio':
               return (
                 <Field key={field} title={title}>
-                  <Radio field={field} onChange={onChange} value={formdata[field]} values={choices} />
-                  <AnimatePresence exitBeforeEnter>
-                    {
-                    formdata[field] === '*'
-                      && <motion.input
-                        layout
-                        initial={{ opacity: 0, scale: 0 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0 }}
-                        style={{ marginTop: '6px' }}
-                        value={formdata[field + '_other'] || ''}
-                        onInput={(e) => onChange(field + '_other', e.target.value)}
-                        placeholder={placeholder} type="text" className="input__text" />
-                    }
-                  </AnimatePresence>
+                  <Radio field={field} onChange={onChange} value={formdata[field]} other={field + '_other'} values={choices} />
                 </Field>
               )
               case 'select':
@@ -106,7 +91,7 @@ function Form({ data }) {
           }
         </AnimateSharedLayout>
         <Button type="submit" primary>提交</Button>
-      </form>
+      </motion.form>
     </DefaultLayout>
   )
 }
