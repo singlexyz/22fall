@@ -133,7 +133,7 @@ function Group () {
           选择你要进入的群（进群数有限制，请按需勾选）
         </h6>
         <Wrap>
-          <GroupPicker onChange={onChange} field='group' groups={data.groupList} />
+          <GroupPicker onChange={onChange} groups={data.groupList} />
         </Wrap>
 
         <Rule>

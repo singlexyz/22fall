@@ -167,10 +167,11 @@ const SelectedGroupItem = styled.li`
   }
 `
 
-
-function GroupPicker ({ groups, field, onChange }) {
+function GroupPicker ({ groups, onChange }) {
   const [state, setState] = useState(groups)
+
   const [currentCate, setCurrentCate] = useState(state[0])
+
   const [isOpen, setIsOpen] = useState(false)
 
   // 选择群数量总计
@@ -180,16 +181,10 @@ function GroupPicker ({ groups, field, onChange }) {
   const [eachSelectedCount, setEachSelectedCount] = useState(state.map(() => ([])))
 
   // 选择的群id
+
   const [selectedGroup, setSelectedGroup] = useState([])
 
-  // 到达上限
-  const updateTotalSelectedCount = () => {
-    setTotalSelectedCount(
-      eachSelectedCount.reduce((a,b) => {
-        return a + b
-      }, 0)
-    )
-  }
+
 
   const updateEachSelectedCount = () => {
     setEachSelectedCount(
@@ -216,7 +211,6 @@ function GroupPicker ({ groups, field, onChange }) {
   const selectedLimit = totalSelectedCount >= 3
 
   useEffect(() => {
-    updateTotalSelectedCount()
   }, [eachSelectedCount])
 
   useEffect(() => {
@@ -224,32 +218,42 @@ function GroupPicker ({ groups, field, onChange }) {
   }, [selectedGroup])
 
   useEffect(() => {
-    updateSelectedGroup()
-    updateEachSelectedCount()
+    // updateSelectedGroup()
+    // updateEachSelectedCount()
   }, [state])
 
-  const selectGroup = (cateid, groupid, checked, disabled) => {
-    if (disabled) { return }
-    const newState = state.map(cate => {
-      if (cate.id === cateid) {
+  useEffect(() => {
+    // updateSelectedGroup()
+    // updateEachSelectedCount()
+  }, [state])
+
+  const selectGroup = (group) => {
+    if (group.disabled) { return }
+    setCurrentCate(() => state.find((cate) => group.cid === cate.id))
+    setState(() => state.map(cate => {
+      if (cate.id === group.cid) {
+        console.log('fuck', {
+          ...cate,
+          children: cate.children.map((g) => {
+            if (g.id === group.id) { return { ...g, checked: !g.checked } }
+            return g
+          })
+        } )
         return {
           ...cate,
-          children: cate.children.map((group) => {
-            if (group.id === groupid) {
-              return { ...group, checked: !group.checked }
-            }
-            return group
+          children: cate.children.map((g) => {
+            if (g.id === group.id) { return { ...g, checked: !g.checked } }
+            return g
           })
         }
       }
       return cate
-    })
-    setState(newState)
+    }))
   }
 
-  const removeSelectedGroup = (cid, id, checked, disabled) => {
+  const removeSelectedGroup = (cid, groupid, disabled) => {
     if (disabled) { return }
-    selectGroup(cid, id, checked)
+    selectGroup(cid, groupid, checked)
   }
 
   return (
@@ -264,7 +268,7 @@ function GroupPicker ({ groups, field, onChange }) {
           selectedGroup.map(({ name, cid, id, disabled }) => (
             <SelectedGroupItem disabled={disabled} key={id}>
               {name}
-              <button className="button" onClick={() => removeSelectedGroup(cid, id, true, disabled)}>
+              <button className="button" onClick={() => removeSelectedGroup(cid, id, disabled)}>
                 <FontAwesomeIcon className="icon" icon={faTrashAlt} />
               </button>
             </SelectedGroupItem>
@@ -284,7 +288,7 @@ function GroupPicker ({ groups, field, onChange }) {
             <Selector>
               <AnimateSharedLayout>
                 <Cate>
-                  <RadioGroup value={currentCate} onChange={setCurrentCate}>
+                  <RadioGroup value={currentCate} onChange={(value) => { console.log(value); setCurrentCate(value)}}>
                     {
                     state.map((value, index) => (
                       value.children.length > 0 && <RadioGroup.Option key={value.id} as={React.Fragment} value={value}>
@@ -312,17 +316,17 @@ function GroupPicker ({ groups, field, onChange }) {
               </AnimateSharedLayout>
               <Group>
                 { 
-                  currentCate.children.map(({ name, checked, id, cid, disabled }, index) => (
+                  true && currentCate.children.map((group, index) => (
                     <GroupItem
-                      key={id}
-                      className={`${disabled ? 'disabled' : ''} ${checked ? 'checked' : ''}`}
-                      onClick={() => selectGroup(cid, id, checked, disabled)}
+                      key={group.id}
+                      className={`${group.disabled ? 'disabled' : ''} ${group.checked ? 'checked' : ''}`}
+                      onClick={() => selectGroup(group)}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 20 }}
                       transition={{ delay: index * .02, ease: [.4, 0, .2, 1] }}
                     >
-                      {name}
+                      {group.name} checked: {JSON.stringify(group.checked)}
                       <FontAwesomeIcon className="icon" icon={faCheck} />
                     </GroupItem>
                   ))
@@ -335,7 +339,9 @@ function GroupPicker ({ groups, field, onChange }) {
                 exit={{ y: '100%' }}
                 transition={{ ease: [.4, 0, .2, 1 ]}}
             >
-              <Limit>限进 { currentCate.restrict } 个群，已选 <i className="highlight">{totalSelectedCount}</i> 个</Limit>
+              <Limit>
+                { currentCate.restrict > 0 ? `限进 ${currentCate.restrict} 个群` : '不限进群' }
+                ，已选 <i className="highlight">{totalSelectedCount}</i> 个</Limit>
               <Button type="button" className="button" onClick={() => setIsOpen(false)}>返回</Button>
               <Button type="button" className="button" primary onClick={() => setIsOpen(false)}>确定</Button>
             </Footer>
