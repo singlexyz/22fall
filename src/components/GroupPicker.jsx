@@ -170,9 +170,8 @@ const SelectedGroupItem = styled.li`
 
 function GroupPicker ({ groups, field, onChange }) {
   const [state, setState] = useState(groups)
-  const [currentCate, setCurrentCate] = useState(state[0].id)
+  const [currentCate, setCurrentCate] = useState(state[0])
   const [isOpen, setIsOpen] = useState(false)
-
 
   // 选择群数量总计
   const [totalSelectedCount, setTotalSelectedCount] = useState(0)
@@ -184,7 +183,6 @@ function GroupPicker ({ groups, field, onChange }) {
   const [selectedGroup, setSelectedGroup] = useState([])
 
   // 到达上限
-  const selectedMax = 3;
   const updateTotalSelectedCount = () => {
     setTotalSelectedCount(
       eachSelectedCount.reduce((a,b) => {
@@ -215,7 +213,7 @@ function GroupPicker ({ groups, field, onChange }) {
     )
   }
 
-  const selectedLimit = totalSelectedCount >= selectedMax;
+  const selectedLimit = totalSelectedCount >= 3
 
   useEffect(() => {
     updateTotalSelectedCount()
@@ -230,24 +228,22 @@ function GroupPicker ({ groups, field, onChange }) {
     updateEachSelectedCount()
   }, [state])
 
-  const selectGroup = (cateid, groupid, checked) => {
-    if (selectedLimit && !checked) { 
-      return;
-    }
+  const selectGroup = (cateid, groupid, checked, disabled) => {
+    if (disabled) { return }
     const newState = state.map(cate => {
-        if (cate.id === cateid) {
-          return {
-             ...cate,
-             children: cate.children.map((group) => {
-               if (group.id === groupid) {
-                 return { ...group, checked: !group.checked }
-               }
-               return group
-             })
-          }
+      if (cate.id === cateid) {
+        return {
+          ...cate,
+          children: cate.children.map((group) => {
+            if (group.id === groupid) {
+              return { ...group, checked: !group.checked }
+            }
+            return group
+          })
         }
-        return cate
-      })
+      }
+      return cate
+    })
     setState(newState)
   }
 
@@ -290,8 +286,8 @@ function GroupPicker ({ groups, field, onChange }) {
                 <Cate>
                   <RadioGroup value={currentCate} onChange={setCurrentCate}>
                     {
-                    state.map(({ name, id }, index) => (
-                      <RadioGroup.Option key={id} as={React.Fragment} value={id}>
+                    state.map((value, index) => (
+                      value.children.length > 0 && <RadioGroup.Option key={value.id} as={React.Fragment} value={value}>
                         {({ checked }) => (
                           <CateItem
                             initial={{ opacity: 0, x: -20 }}
@@ -300,7 +296,7 @@ function GroupPicker ({ groups, field, onChange }) {
                             transition={{ delay: index * 0.02, ease: [.4, 0, .2, 1] }}
                           >
                             { checked && <CateSelected transtion={{ duration: .2 }} layoutId={`cate-selected`} /> }
-                            <span style={{ position: 'relative', zIndex: 10 }}>{name}</span>
+                            <span style={{ position: 'relative', zIndex: 10 }}>{value.name}</span>
                             { 
                               eachSelectedCount[index] > 0 && <span className="count">
                                 {eachSelectedCount[index]}
@@ -316,11 +312,11 @@ function GroupPicker ({ groups, field, onChange }) {
               </AnimateSharedLayout>
               <Group>
                 { 
-                  state.filter(({id}) => id === currentCate)[0].children.map(({ name, checked, id, cid, disabled }, index) => (
+                  currentCate.children.map(({ name, checked, id, cid, disabled }, index) => (
                     <GroupItem
                       key={id}
-                      className={`${selectedLimit ? 'disabled' : ''} ${checked ? 'checked' : ''}`}
-                      onClick={() => selectGroup(cid, id, checked)}
+                      className={`${disabled ? 'disabled' : ''} ${checked ? 'checked' : ''}`}
+                      onClick={() => selectGroup(cid, id, checked, disabled)}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 20 }}
@@ -339,7 +335,7 @@ function GroupPicker ({ groups, field, onChange }) {
                 exit={{ y: '100%' }}
                 transition={{ ease: [.4, 0, .2, 1 ]}}
             >
-              <Limit>限进 3 个群，已选 <i className="highlight">{totalSelectedCount}</i> 个</Limit>
+              <Limit>限进 { currentCate.restrict } 个群，已选 <i className="highlight">{totalSelectedCount}</i> 个</Limit>
               <Button type="button" className="button" onClick={() => setIsOpen(false)}>返回</Button>
               <Button type="button" className="button" primary onClick={() => setIsOpen(false)}>确定</Button>
             </Footer>
