@@ -15,11 +15,6 @@ const Page = styled.div`
   padding: 15px;
 `
 
-const Layout = styled.div`
-  max-width: 480px;
-  margin: 0 auto;
-`
-
 const Tile = styled.div`
   background-color: white;
   border-radius: 10px;
@@ -76,7 +71,6 @@ function QR () {
   }, [])
   return (
     data && <PageTransition><Page>
-      <Layout>
       <Tile>
         <Prompt>你已勾选的群有：</Prompt>
         <Subprompt>你勾选的群在下方，出现二维码后立即扫码进群</Subprompt>
@@ -94,7 +88,6 @@ function QR () {
           添加
         </Button>
       </Tile>
-      </Layout>
     </Page></PageTransition>
   )
 }

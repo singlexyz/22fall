@@ -16,6 +16,7 @@ const Aspect = styled.div`
 const Image = styled.img`
   position: absolute;
   left: 0; top: 0;
+  width: 100%;
   @supports (aspect-ratio: 1) {
     position: static;
   }

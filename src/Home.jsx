@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import Form from './Form'
 import axios from 'axios'
-import { useHistory } from 'react-router-dom'
 import LoadingScreen from './view/LoadingScreen'
-
+import { useHistory } from 'react-router-dom'
 
 const Home = () => {
   const history = useHistory()

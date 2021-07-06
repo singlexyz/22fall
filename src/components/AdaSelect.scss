@@ -2,9 +2,7 @@ $primary: #4A66FA;
 $border: #d6d7dc;
 
 %option {
-  height: 44px;
-  line-height: 44px;
-  padding: 0 15px;
+  padding: 12px 15px;
   user-select: none;
   background-color: white;
   &:focus { outline: none; }

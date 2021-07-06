@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import axios from 'axios'
 import styled from 'styled-components'
 import { useHistory } from 'react-router-dom'
@@ -37,11 +37,21 @@ const Field = ({ children, title }) => {
   )
 }
 
-const Checkbox = ({ text, value, name }) => {
+const ShakeX = styled.span`
+  @keyframes shakeX {
+    from, to { transform: translatex(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translatex(-3px); }
+    20%, 40%, 60%, 80% { transform: translatex(3px); }
+  }
+  ${(props) => props.animate && `animation: .5s shakeX;`}
+}
+`
+
+const Checkbox = ({ text, animate, ...rest }) => {
   return (
     <label className="input__checkbox">
-      <input className="input__el" defaultChecked value={value} name={name} type="checkbox" />
-      <span className="input__view">{text}</span>
+      <input className="input__el" {...rest} type="checkbox" />
+      <ShakeX animate={animate} className="input__view">{text}</ShakeX>
     </label>
   )
 }
@@ -73,21 +83,35 @@ const RuleTerm = styled.p`
     height: .3125rem;
     margin-right: .5rem;
   }
-  }
 `
 
 function Group () {
   const [data, setData] = useState(null)
   const [formdata, setFormdata] = useState({})
   const [isPending, setIsPending] = useState(false)
-  const history = useHistory()
   const [jump2qr, setJump2qr] = useState(false)
+  const [policyChecked, setPolicyChecked] = useState(false)
+  const [policyAnimate, setPolicyAnimate] = useState(false)
+  const history = useHistory()
+
   function onChange (group) {
     setFormdata({ ...formdata, info: { group } })
   }
 
+  useEffect(() => {
+    if (policyAnimate) {
+      setTimeout(() => {
+        setPolicyAnimate(false)
+      }, 500)
+    }
+  }, [policyAnimate])
+
   const onSubmit = async (e) => {
     e.preventDefault()
+    if (!policyChecked) {
+      setPolicyAnimate(true)
+      return
+    }
     setIsPending(true)
     try {
       const { data: { code, message } } = await axios.post('/form/submit', { ...formdata, token: data.token }, { headers: { authorization: '58b5cc72ae86e1b28c632fd4f9b4759f' } })
@@ -105,9 +129,9 @@ function Group () {
 
   useEffect(async () => {
     const { message, code, data } = await fetchGroupList()
-
     if (data.info.group.length > 0) {
       setJump2qr(true)
+      setPolicyChecked(true)
     }
     if (code === 200) { 
       setData(data)
@@ -143,9 +167,11 @@ function Group () {
         </Rule>
 
         <Field>
-          <Checkbox name="policy" text={(
-            <span className="policy">我已认真阅读并同意<i className="hl">《寄托小群规》</i></span>
-          )} />
+          <Checkbox
+            checked={policyChecked}
+            animate={policyAnimate}
+            onChange={(e) => setPolicyChecked(e.target.checked)}
+            text={( <span className="policy">我已认真阅读并同意<i className="hl">《寄托小群规》</i></span>)} />
         </Field>
         <MotionButton onClick={onSubmit} pending={isPending} type="button" primary>提交</MotionButton>
         <QRCode
