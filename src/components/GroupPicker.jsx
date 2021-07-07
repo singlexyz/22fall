@@ -72,7 +72,7 @@ const Cate = styled.ul`
 const CateItem = styled(motion.li)`
   font-size: .875em;
   padding: 15px 20px;
-  width: 150px;
+  width: 125px;
   cursor: pointer;
   border: 1px solid transparent;
   border-width: 1px 0;
