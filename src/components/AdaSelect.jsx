@@ -117,10 +117,10 @@ function AdaSelect({ value, values, onChange, field }) {
 
   return (
     <Flex>
-      <FlexGrow style={{ padding: 3, width: '50%', margin: 0 } }>
+      <FlexGrow style={{ padding: 3, margin: 0 } }>
         <Selector prefix="first" options={first} value={firstValue} />
       </FlexGrow>
-      <FlexGrow style={{ padding: 3, width: '50%', margin: 0 } }>
+      <FlexGrow style={{ padding: 3, margin: 0 } }>
         <Selector prefix="second" options={second} value={secondValue} />
       </FlexGrow>
     </Flex>

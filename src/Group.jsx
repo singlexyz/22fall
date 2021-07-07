@@ -137,7 +137,6 @@ function Group () {
       setData(data)
       setFormdata({ info: data.info })
     } else {
-      // 未填表进入时，叫用户滚去填表
       history.replace('/');
     }
   }, [])
@@ -173,12 +172,9 @@ function Group () {
             onChange={(e) => setPolicyChecked(e.target.checked)}
             text={( <span className="policy">我已认真阅读并同意<i className="hl">《寄托小群规》</i></span>)} />
         </Field>
-        <MotionButton onClick={onSubmit} pending={isPending} type="button" primary>提交</MotionButton>
-        <QRCode
-          image={data.wechatQrcode}
-          desc1={<Desc>填表后扫码添加<span className="wechat">【葱哥的助手】</span></Desc>}
-          desc2="点击葱哥发给你的“进群入口”链接，扫码进群。"
-        ></QRCode>
+
+        <MotionButton disabled={!policyChecked} onClick={onSubmit} pending={isPending} type="button" primary>提交</MotionButton>
+
       </DefaultLayout>
       </PageTransition>
     ) : <LoadingScreen /> )

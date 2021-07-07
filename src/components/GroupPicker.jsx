@@ -72,7 +72,7 @@ const Cate = styled.ul`
 const CateItem = styled(motion.li)`
   font-size: .875em;
   padding: 15px 20px;
-  width: 180px;
+  width: 150px;
   cursor: pointer;
   border: 1px solid transparent;
   border-width: 1px 0;
@@ -144,6 +144,7 @@ const GroupItem = styled.li`
     .icon { color: #4a66fa; }
   }
   &.disabled { opacity: 0.5; cursor: not-allowed; }
+  &.disabled2 { opacity: 0.5; cursor: not-allowed; }
   &.limited:not(.checked) { opacity: 0.5; cursor: not-allowed; }
 `
 
@@ -170,47 +171,19 @@ const SelectedGroupItem = styled.li`
 
 
 function GroupPicker ({ groups, onChange }) {
-  const [state, setState] = useState(updatedCount(groups))
+  const filterGroups = groups.filter(({ children }) => children.length > 0)
+  const [state, setState] = useState(updatedCount(filterGroups))
   const [cateId, setCateId] = useState(state[0].id)
   const [cate, setCate] = useState(state[0])
   const [isOpen, setIsOpen] = useState(false)
 
   // 分类下添加已选数量及限制
   function updatedCount (groups) {
-    const szText = `首战`
-    const zxText = `专项`
     return groups.map(group => {
       const count = group.children.reduce((a,b) => b.checked ? ++a : a, 0)
-      const szLimit = group.children.find(v => {
-        return v.checked && v.name.includes(szText)
-      })
-      const zxLimit = group.children.find(v => {
-        return v.checked && v.name.includes(zxText)
-      })
-      let children = null
-      if (szLimit) {
-        children = group.children.map(v => {
-          if (v.name.includes(szText)) {
-            return { ...v, disabled: v.id === szLimit.id && !v.checked ? false : v.disabled }
-          }
-          return v
-        })
-      } else if (zxLimit) {
-        children = group.children.map(v => {
-          if (v.name.includes(zxText)) {
-            return { ...v, disabled: v.id === zxLimit.id && !v.checked ? false : v.disabled }
-          }
-          return v
-        })
-      } else {
-        children = group.children.map(v => {
-          return { ...v, disabled: v.disabled }
-        })
-      }
       return { 
         ...group,
         count, 
-        children,
         limit: group.restrict > 0 && count >= group.restrict
       }
     })
@@ -242,22 +215,16 @@ function GroupPicker ({ groups, onChange }) {
     setCate(state.find(v => v.id === cateId))
   }, [cateId])
 
-  const selectGroup = (cateid, groupid, disabled, checked) => {
-    if (( cate.limit && !checked) || disabled) { 
-      console.log('out')
+  const selectGroup = (cateid, groupid, disabled, checked, disabled2) => {
+    if ((cate.limit && !checked) || disabled || disabled2) { 
       return;
     }
-
-    console.log('in')
     const newState = state.map(cate => {
       if (cate.id === cateid) {
         return {
           ...cate,
           children: cate.children.map((group) => {
-            if (group.id === groupid) {
-              return { ...group, checked: !group.checked }
-            }
-            return group
+            return { ...group, checked: group.id === groupid ? !group.checked : group.checked }
           })
         }
       }
@@ -334,11 +301,11 @@ function GroupPicker ({ groups, onChange }) {
               </AnimateSharedLayout>
               <Group>
                 { 
-                  cate.children.map(({ name, checked, id, cid, disabled }, index) => (
+                  cate.children.map(({ name, checked, id, cid, disabled, disabled2 }, index) => (
                     <GroupItem
                       key={id}
-                      className={`${cate.limit ? 'limited' : ''} ${disabled ? 'disabled' : ''} ${checked ? 'checked' : ''}`}
-                      onClick={() => selectGroup(cid, id, disabled, checked)}
+                      className={`${cate.limit ? 'limited' : ''} ${disabled || disabled2 ? 'disabled' : ''} ${checked ? 'checked' : ''}`}
+                      onClick={() => selectGroup(cid, id, disabled, checked, disabled2)}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 20 }}
