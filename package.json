@@ -3,7 +3,7 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 80",
     "build": "vite build",
-    "push": "git add .; git commit -am 'update'; git push;",
+    "push": "git add .; git commit -am 'update'; git push; say 'git 推送完成'",
     "publish": "vite build; ftp 47.94.157.120 < ftp_command; say '构建发布完成！新垣结衣发来贺电。'",
     "serve": "vite preview"
   },
