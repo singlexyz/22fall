@@ -144,7 +144,6 @@ const GroupItem = styled.li`
     .icon { color: #4a66fa; }
   }
   &.disabled { opacity: 0.5; cursor: not-allowed; }
-  &.disabled2 { opacity: 0.5; cursor: not-allowed; }
   &.limited:not(.checked) { opacity: 0.5; cursor: not-allowed; }
 `
 
@@ -215,8 +214,8 @@ function GroupPicker ({ groups, onChange }) {
     setCate(state.find(v => v.id === cateId))
   }, [cateId])
 
-  const selectGroup = (cateid, groupid, disabled, checked, disabled2) => {
-    if ((cate.limit && !checked) || disabled || disabled2) { 
+  const selectGroup = (cateid, groupid, disabled, checked) => {
+    if ((cate.limit && !checked) || disabled) { 
       return;
     }
     const newState = state.map(cate => {
@@ -255,7 +254,7 @@ function GroupPicker ({ groups, onChange }) {
           selectedGroup.map(({ name, cid, id, disabled, checked }) => (
             <SelectedGroupItem disabled={disabled} key={id}>
               {name}
-              <button className="button" onClick={() => removeSelectedGroup(cid, id, disabled, checked)}>
+              <button className="button" onClick={() => removeSelectedGroup(cid, id, disabled, true)}>
                 <FontAwesomeIcon className="icon" icon={faTrashAlt} />
               </button>
             </SelectedGroupItem>
@@ -301,11 +300,11 @@ function GroupPicker ({ groups, onChange }) {
               </AnimateSharedLayout>
               <Group>
                 { 
-                  cate.children.map(({ name, checked, id, cid, disabled, disabled2 }, index) => (
+                  cate.children.map(({ name, checked, id, cid, disabled }, index) => (
                     <GroupItem
                       key={id}
-                      className={`${cate.limit ? 'limited' : ''} ${disabled || disabled2 ? 'disabled' : ''} ${checked ? 'checked' : ''}`}
-                      onClick={() => selectGroup(cid, id, disabled, checked, disabled2)}
+                      className={`${cate.limit ? 'limited' : ''} ${disabled ? 'disabled' : ''} ${checked ? 'checked' : ''}`}
+                      onClick={() => selectGroup(cid, id, disabled, checked)}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 20 }}
