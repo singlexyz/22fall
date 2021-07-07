@@ -1,0 +1,16 @@
+cd 22fallGroup
+lcd dist
+
+prompt
+mdelete assets
+rmdir assets
+delete index.html
+
+put index.html
+mkdir assets
+
+cd assets
+lcd assets
+mput *
+
+bye

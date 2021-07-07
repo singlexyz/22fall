@@ -3,7 +3,8 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 80",
     "build": "vite build",
-    "publish": "git add .; git commit -am 'update'; git push; vite build",
+    "push": "git add .; git commit -am 'update'; git push;",
+    "publish": "vite build; ftp 47.94.157.120 < ftp_command",
     "serve": "vite preview"
   },
   "dependencies": {
