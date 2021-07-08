@@ -85,6 +85,13 @@ const Text = styled.div`
 function Success() {
   const [qr, setQr] = useState('')
   const [wechat, setWechat] = useState('')
+  useEffect(() => {
+    const title = document.title
+    document.title = '提交成功'
+    return () => {
+      document.title = title
+    }
+  }, [])
   useEffect(async () => {
     const { code, data, message } = await fetchGroupList()
     if (code === 200) {

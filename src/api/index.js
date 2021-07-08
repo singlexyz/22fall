@@ -1,6 +1,8 @@
 import axios from 'axios'
 
-const headers = { authorization: '250cabb4b2450fcf524cb3cd72b46e06' }
+// const headers = { authorization: '250cabb4b2450fcf524cb3cd72b46e06' }
+
+const headers = {}
 
 const submitFromDetails = async (payload) => {
   try {
