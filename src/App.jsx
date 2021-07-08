@@ -8,7 +8,17 @@ const Group = lazy(() => import('./Group'))
 const Feedback = lazy(() => import('./Feedback'))
 const Success = lazy(() => import('./Success'))
 
-const Loading = () => (<></>)
+import LoadingScreen from './view/LoadingScreen'
+
+const LoadingRoute = ({ children, ...rest }) => (
+  <Route {...rest}>
+    <AnimatePresence>
+      <Suspense fallback={<LoadingScreen />}>
+        {children}
+      </Suspense>
+    </AnimatePresence>
+  </Route>
+)
 
 function App() {
   return (
@@ -17,21 +27,11 @@ function App() {
         render={({ location }) => (
           <AnimatePresence exitBeforeEnter>
             <Switch location={location} key={location.pathname}>
-              <Route path="/" exact>
-                <Suspense fallback={<Loading />}><Home /></Suspense>
-              </Route>
-              <Route path="/group">
-                <Suspense fallback={<Loading />}><Group /></Suspense>
-              </Route>
-              <Route path="/qr" >
-                <Suspense fallback={<Loading />}><QR /></Suspense>
-              </Route>
-              <Route path="/success" >
-                <Suspense fallback={<Loading />}><Success /></Suspense>
-              </Route>
-              <Route path="/feedback">
-                <Suspense fallback={<Loading />}><Feedback /></Suspense>
-              </Route>
+              <LoadingRoute path="/" exact><Home /></LoadingRoute>
+              <LoadingRoute path="/group"><Group /></LoadingRoute>
+              <LoadingRoute path="/qr"><QR /></LoadingRoute>
+              <LoadingRoute path="/success"><Success /></LoadingRoute>
+              <LoadingRoute path="/feedback"><Feedback /></LoadingRoute>
             </Switch>
           </AnimatePresence>
         )}

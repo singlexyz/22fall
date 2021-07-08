@@ -12,9 +12,10 @@ const Screen = styled.div`
   background-color: white;
   color: #4a66fa;
   user-select: none;
+  z-index: 10086;
 `
 
-function LoadingScreen () {
+function LoadingScreen() {
   return (
     <Screen>
       <Spinner />

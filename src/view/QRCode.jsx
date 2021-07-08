@@ -1,4 +1,4 @@
-import React  from 'react'
+import React from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import styled from 'styled-components'
 import { faWeixin } from '@fortawesome/free-brands-svg-icons'
@@ -39,29 +39,29 @@ const Desc1 = styled.p`
   .icon { color: #26d79f; margin-right: .35em; }
 `
 
-const Desc2 = styled.p`
-  font-size: ${() => 12/16}rem;
+const Desc2 = styled.div`
+  font-size: ${() => 12 / 16}rem;
   margin-top: .25em;
   color: #999;
 `
 
-function QRCode ({ image, desc1, desc2 }) {
+function QRCode({ image, desc1, desc2 }) {
   return (
     <Wrap>
       <Code>
-        { image && <ImagePreload key={image} src={image}>
+        {image && <ImagePreload key={image} src={image}>
           <Spinner size="lg" />
-        </ImagePreload> }
+        </ImagePreload>}
       </Code>
       <Desc>
-        { 
-        desc1 && 
+        {
+          desc1 &&
           <Desc1>
             <FontAwesomeIcon className="icon" icon={faWeixin}></FontAwesomeIcon>
             {desc1}
           </Desc1>
         }
-        { desc2 && <Desc2>{desc2}</Desc2> }
+        {desc2 && <Desc2>{desc2}</Desc2>}
       </Desc>
     </Wrap>
   )
