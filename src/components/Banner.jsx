@@ -22,10 +22,17 @@ const Image = styled.img`
   }
 `
 
-function Banner({ image = defaultBanner }) {
+const Text = styled.div`
+  position: absolute;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+`
+
+function Banner({ text, image = defaultBanner }) {
   return (
     <Aspect>
       <Image src={image} />
+      {text && <Text>{text}</Text>}
     </Aspect>
   )
 }

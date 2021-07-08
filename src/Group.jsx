@@ -11,12 +11,7 @@ import GroupPicker from './components/GroupPicker'
 import LoadingScreen from './view/LoadingScreen'
 import PageTransition from './components/PageTransition'
 import './Form.scss'
-import { fetchGroupList } from './api'
-
-const Desc = styled.span`
-  font-size: ${() => 13 / 16}rem;
-  .wechat { font-size: ${() => 18 / 13}em; }
-`
+import { fetchGroupList, submitFromDetails } from './api'
 
 const Hr = styled.hr`
   margin: 1rem 0;
@@ -57,7 +52,7 @@ const Checkbox = ({ text, animate, ...rest }) => {
 }
 
 const Rule = styled.section`
-  border-radius: ${() => 20/16}rem;
+  border-radius: ${() => 20 / 16}rem;
   background-color: #F6F7FF;
   padding: 1.25rem 2.25rem 1.25rem 1.875rem;
   text-align: left;
@@ -85,7 +80,7 @@ const RuleTerm = styled.p`
   }
 `
 
-function Group () {
+function Group() {
   const [data, setData] = useState(null)
   const [formdata, setFormdata] = useState({})
   const [isPending, setIsPending] = useState(false)
@@ -94,7 +89,7 @@ function Group () {
   const [policyAnimate, setPolicyAnimate] = useState(false)
   const history = useHistory()
 
-  function onChange (group) {
+  function onChange(group) {
     setFormdata({ ...formdata, info: { group } })
   }
 
@@ -114,26 +109,26 @@ function Group () {
     }
     setIsPending(true)
     try {
-      const { data: { code, message } } = await axios.post('/form/submit', { ...formdata, token: data.token }, { headers: { authorization: '58b5cc72ae86e1b28c632fd4f9b4759f' } })
+      const { code, message } = await submitFromDetails({ ...formdata, token: data.token })
       if (code === 200) {
-        history.push(jump2qr ? '/qr' : '/success')
+        history.push(jump2qr ? '/qr' : '/success', { fuck: true })
       } else {
         alert(message)
       }
-  } catch (e) {
-    console.log(e)
-  } finally {
-    setIsPending(false)
+    } catch (e) {
+      console.log(e)
+    } finally {
+      setIsPending(false)
+    }
   }
-}
 
   useEffect(async () => {
     const { message, code, data } = await fetchGroupList()
-    if (data.info.group.length > 0) {
-      setJump2qr(true)
-      setPolicyChecked(true)
-    }
-    if (code === 200) { 
+    if (code === 200) {
+      if (data.info.group.length > 0) {
+        setJump2qr(true)
+        setPolicyChecked(true)
+      }
       setData(data)
       setFormdata({ info: data.info })
     } else {
@@ -143,41 +138,41 @@ function Group () {
 
   return (
     data ?
-    (
-      <PageTransition>
-      <DefaultLayout>
-        <h6>
-          <FontAwesomeIcon className="icon" icon={faAddressCard}></FontAwesomeIcon>
+      (
+        <PageTransition>
+          <DefaultLayout>
+            <h6>
+              <FontAwesomeIcon className="icon" icon={faAddressCard}></FontAwesomeIcon>
           微信号：{data.info.wechat}
-        </h6>
-        <Hr />
-        <h6>
-          <FontAwesomeIcon className="icon" icon={faPlusSquare}></FontAwesomeIcon>
+            </h6>
+            <Hr />
+            <h6>
+              <FontAwesomeIcon className="icon" icon={faPlusSquare}></FontAwesomeIcon>
           选择你要进入的群（进群数有限制，请按需勾选）
         </h6>
-        <Wrap>
-          <GroupPicker onChange={onChange} groups={data.groupList} />
-        </Wrap>
+            <Wrap>
+              <GroupPicker onChange={onChange} groups={data.groupList} />
+            </Wrap>
 
-        <Rule>
-          <RuleTitle>寄托小群规</RuleTitle>
-          <RuleTerm>禁止任在群内各种广告“各类无关二维码，拉群，链接，名片，小程序，助力，诱导加微信等”，违反会被T群，拉黑。</RuleTerm>
-          <RuleTerm>进群后请按群欢迎语尽快修改群内昵称；</RuleTerm>
-        </Rule>
+            <Rule>
+              <RuleTitle>寄托小群规</RuleTitle>
+              <RuleTerm>禁止任在群内各种广告“各类无关二维码，拉群，链接，名片，小程序，助力，诱导加微信等”，违反会被T群，拉黑。</RuleTerm>
+              <RuleTerm>进群后请按群欢迎语尽快修改群内昵称；</RuleTerm>
+            </Rule>
 
-        <Field>
-          <Checkbox
-            checked={policyChecked}
-            animate={policyAnimate}
-            onChange={(e) => setPolicyChecked(e.target.checked)}
-            text={( <span className="policy">我已认真阅读并同意<i className="hl">《寄托小群规》</i></span>)} />
-        </Field>
+            <Field>
+              <Checkbox
+                checked={policyChecked}
+                animate={policyAnimate}
+                onChange={(e) => setPolicyChecked(e.target.checked)}
+                text={(<span className="policy">我已认真阅读并同意<i className="hl">《寄托小群规》</i></span>)} />
+            </Field>
 
-        <MotionButton disabled={!policyChecked} onClick={onSubmit} pending={isPending} type="button" primary>提交</MotionButton>
+            <MotionButton disabled={!policyChecked} onClick={onSubmit} pending={isPending} type="button" primary>提交</MotionButton>
 
-      </DefaultLayout>
-      </PageTransition>
-    ) : <LoadingScreen /> )
+          </DefaultLayout>
+        </PageTransition>
+      ) : <LoadingScreen />)
 }
 
 export default Group

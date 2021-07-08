@@ -1,6 +1,24 @@
 import axios from 'axios'
 
-const headers = { authorization: '58b5cc72ae86e1b28c632fd4f9b4759f' }
+const headers = { authorization: '250cabb4b2450fcf524cb3cd72b46e06' }
+
+const submitFromDetails = async (payload) => {
+  try {
+    const { data } = await axios.post('/form/submit', payload, { headers })
+    return data
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+const fetchFromDetails = async () => {
+  try {
+    const { data } = await axios.post('/form/details', { uniqid: '22fallGroup' }, { headers })
+    return data
+  } catch (e) {
+    console.log(e)
+  }
+}
 
 const fetchFeedback = async () => {
   try {
@@ -30,4 +48,4 @@ const fetchSelectedGroup = async () => {
 }
 
 
-export { fetchGroupList, fetchSelectedGroup, fetchFeedback }
+export { submitFromDetails, fetchFromDetails, fetchGroupList, fetchSelectedGroup, fetchFeedback }

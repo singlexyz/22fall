@@ -168,21 +168,47 @@ const SelectedGroupItem = styled.li`
   }
 `
 
+function GroupPicker({ groups, onChange }) {
+  const stupidReg = /GRE|TOEFL|IELTS/i // stupid regexp
 
-function GroupPicker ({ groups, onChange }) {
   const filterGroups = groups.filter(({ children }) => children.length > 0)
-  const [state, setState] = useState(updatedCount(filterGroups))
+
+  const stupidState = filterGroups.reduce((_prev, cate) => {
+    return cate.children.reduce((prev, group) => {
+      const matches = group.name.match(stupidReg)
+      if (matches && group.checked) {
+        return { ...prev, [matches[0]]: true }
+      }
+      return prev
+    }, { TOEFL: false, GRE: false, IELTS: false })
+  }, {})
+
+  const stupidGroups = filterGroups.map(cate => {
+    return {
+      ...cate,
+      children: cate.children.map(group => {
+        const matches = group.name.match(stupidReg)
+        const isTarget = (matches && stupidState[matches[0]])
+        return {
+          ...group,
+          disabled: isTarget || group.disabled
+        }
+      })
+    }
+  })
+
+  const [state, setState] = useState(updatedCount(stupidGroups))
   const [cateId, setCateId] = useState(state[0].id)
   const [cate, setCate] = useState(state[0])
   const [isOpen, setIsOpen] = useState(false)
 
-  // 分类下添加已选数量及限制
-  function updatedCount (groups) {
+  // 分类下添加已选数量 已选 限制
+  function updatedCount(groups) {
     return groups.map(group => {
-      const count = group.children.reduce((a,b) => b.checked ? ++a : a, 0)
-      return { 
+      const count = group.children.reduce((a, b) => b.checked ? ++a : a, 0)
+      return {
         ...group,
-        count, 
+        count,
         limit: group.restrict > 0 && count >= group.restrict
       }
     })
@@ -193,16 +219,16 @@ function GroupPicker ({ groups, onChange }) {
 
   const updateSelectedGroup = () => {
     setSelectedGroup(
-      state.reduce((a,b) => {
-        return [ ...a, ...b.children.filter(({ checked }) => {
+      state.reduce((a, b) => {
+        return [...a, ...b.children.filter(({ checked }) => {
           if (checked) { return true }
-        }).map(({ id, name, cid, disabled }) => ({ disabled, cid, name, id}))]
+        }).map(({ id, name, cid, disabled }) => ({ disabled, cid, name, id }))]
       }, [])
     )
   }
 
   useEffect(() => {
-    onChange(selectedGroup.map(({id}) => id));
+    onChange(selectedGroup.map(({ id }) => id));
   }, [selectedGroup])
 
   useEffect(() => {
@@ -214,8 +240,8 @@ function GroupPicker ({ groups, onChange }) {
     setCate(state.find(v => v.id === cateId))
   }, [cateId])
 
-  const selectGroup = (cateid, groupid, disabled, checked) => {
-    if ((cate.limit && !checked) || disabled) { 
+  const selectGroup = (cateid, groupid, disabled, checked, name) => {
+    if ((cate.limit && !checked) || disabled) {
       return;
     }
     const newState = state.map(cate => {
@@ -223,118 +249,132 @@ function GroupPicker ({ groups, onChange }) {
         return {
           ...cate,
           children: cate.children.map((group) => {
-            return { ...group, checked: group.id === groupid ? !group.checked : group.checked }
+            const matches = name.match(stupidReg)
+            const isTarget = group.id === groupid // 点击目标
+            const nextChecked = isTarget ? !checked : group.checked
+            let nextDisabled = group.disabled
+            if (matches && group.name.includes(matches[0])) {
+              if (group.name === name) {
+                nextDisabled = false
+              } else {
+                nextDisabled = !checked
+              }
+            }
+            return {
+              ...group,
+              disabled: nextDisabled,
+              checked: nextChecked
+            }
           })
         }
       }
       return cate
-    }) 
+    })
     setState(updatedCount(newState))
   }
 
-  const removeSelectedGroup = (cid, id, disabled, checked) => {
+  const removeSelectedGroup = (cid, id, disabled, checked, name) => {
     if (disabled) { return }
-    selectGroup(cid, id, disabled, checked)
+    selectGroup(cid, id, disabled, checked, name)
   }
 
   useEffect(() => {
-    window.scrollTo(0,0)
+    window.scrollTo(0, 0)
     document.body.classList[isOpen ? 'add' : 'remove']('overflow-hidden')
   }, [isOpen])
 
   return (
     <motion.div>
       <Trigger type="button" onClick={() => setIsOpen(true)}>
-        请选择
-        <FontAwesomeIcon className="icon" icon={faChevronRight} />
+        请选择 <FontAwesomeIcon className="icon" icon={faChevronRight} />
       </Trigger>
       {
         selectedGroup.length > 0 && <SelectedGroupList>
-        {
-          selectedGroup.map(({ name, cid, id, disabled, checked }) => (
-            <SelectedGroupItem disabled={disabled} key={id}>
-              {name}
-              <button className="button" onClick={() => removeSelectedGroup(cid, id, disabled, true)}>
-                <FontAwesomeIcon className="icon" icon={faTrashAlt} />
-              </button>
-            </SelectedGroupItem>
-          ))
-        }
+          {
+            selectedGroup.map(({ name, cid, id, disabled, checked }) => (
+              <SelectedGroupItem disabled={disabled} key={id}>
+                {name}
+                <button className="button" onClick={() => removeSelectedGroup(cid, id, disabled, true, name)}>
+                  <FontAwesomeIcon className="icon" icon={faTrashAlt} />
+                </button>
+              </SelectedGroupItem>
+            ))
+          }
         </SelectedGroupList>
       }
       <AnimatePresence>
-      {
-        isOpen && (
-        <Container
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          <Layout>
-            <Selector>
-              <AnimateSharedLayout>
-                <Cate>
-                  <RadioGroup value={cateId} onChange={setCateId}>
-                    {
-                    state.map(({ name, count, id, children }, index) => (
-                      children.length > 0 && <RadioGroup.Option key={id} as={React.Fragment} value={id}>
-                        {({ checked }) => (
-                          <CateItem
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -20 }}
-                            transition={{ delay: index * 0.02, ease: [.4, 0, .2, 1] }}
-                          >
-                            { checked && <CateSelected transtion={{ duration: .2 }} layoutId={`cate-selected`} /> }
-                            <span style={{ position: 'relative', zIndex: 10 }}>{name}</span>
-                            { 
-                              count > 0 && <span className="count"> {count} </span>
-                            }
-                          </CateItem>
-                        )}
-                      </RadioGroup.Option>
-                    ))
-                    }
-                  </RadioGroup>
-                </Cate>
-              </AnimateSharedLayout>
-              <Group>
-                { 
-                  cate.children.map(({ name, checked, id, cid, disabled }, index) => (
-                    <GroupItem
-                      key={id}
-                      className={`${cate.limit ? 'limited' : ''} ${disabled ? 'disabled' : ''} ${checked ? 'checked' : ''}`}
-                      onClick={() => selectGroup(cid, id, disabled, checked)}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 20 }}
-                      transition={{ delay: index * .02, ease: [.4, 0, .2, 1] }}
-                    >
-                      {name}
-                      <FontAwesomeIcon className="icon" icon={faCheck} />
-                    </GroupItem>
-                  ))
-                }
-              </Group>
-            </Selector>
-            <Footer
-                initial={{ y: '100%' }}
-                animate={{ y: '0%' }}
-                exit={{ y: '100%' }}
-                transition={{ ease: [.4, 0, .2, 1 ]}}
+        {
+          isOpen && (
+            <Container
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
             >
-              <Limit>
-                {
-                  cate.restrict > 0 && `限进 ${cate.restrict} 个群，`
-                }
+              <Layout>
+                <Selector>
+                  <AnimateSharedLayout>
+                    <Cate>
+                      <RadioGroup value={cateId} onChange={setCateId}>
+                        {
+                          state.map(({ name, count, id, children }, index) => (
+                            children.length > 0 && <RadioGroup.Option key={id} as={React.Fragment} value={id}>
+                              {({ checked }) => (
+                                <CateItem
+                                  initial={{ opacity: 0, x: -20 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  exit={{ opacity: 0, x: -20 }}
+                                  transition={{ delay: index * 0.02, ease: [.4, 0, .2, 1] }}
+                                >
+                                  {checked && <CateSelected transtion={{ duration: .2 }} layoutId={`cate-selected`} />}
+                                  <span style={{ position: 'relative', zIndex: 10 }}>{name}</span>
+                                  {
+                                    count > 0 && <span className="count"> {count} </span>
+                                  }
+                                </CateItem>
+                              )}
+                            </RadioGroup.Option>
+                          ))
+                        }
+                      </RadioGroup>
+                    </Cate>
+                  </AnimateSharedLayout>
+                  <Group>
+                    {
+                      cate.children.map(({ name, checked, id, cid, disabled }, index) => (
+                        <GroupItem
+                          key={id}
+                          className={`${cate.limit ? 'limited' : ''} ${disabled ? 'disabled' : ''} ${checked ? 'checked' : ''}`}
+                          onClick={() => selectGroup(cid, id, disabled, checked, name)}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 20 }}
+                          transition={{ delay: index * .02, ease: [.4, 0, .2, 1] }}
+                        >
+                          {name}
+                          <FontAwesomeIcon className="icon" icon={faCheck} />
+                        </GroupItem>
+                      ))
+                    }
+                  </Group>
+                </Selector>
+                <Footer
+                  initial={{ y: '100%' }}
+                  animate={{ y: '0%' }}
+                  exit={{ y: '100%' }}
+                  transition={{ ease: [.4, 0, .2, 1] }}
+                >
+                  <Limit>
+                    {
+                      cate.restrict > 0 && `限进 ${cate.restrict} 个群，`
+                    }
                 已选 <i className="highlight">{cate.count}</i> 个</Limit>
-              <Button type="button" className="button" onClick={() => setIsOpen(false)}>返回</Button>
-              <Button type="button" className="button" primary onClick={() => setIsOpen(false)}>确定</Button>
-            </Footer>
-          </Layout>
-        </Container>
-        )
-      }
+                  <Button type="button" className="button" onClick={() => setIsOpen(false)}>返回</Button>
+                  <Button type="button" className="button" primary onClick={() => setIsOpen(false)}>确定</Button>
+                </Footer>
+              </Layout>
+            </Container>
+          )
+        }
       </AnimatePresence>
     </motion.div>
   )

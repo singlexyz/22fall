@@ -12,26 +12,30 @@ const Text = styled.div`
   line-height: 1.6;
 `
 
-function Feedback () {
+function Feedback() {
   const [qr, setQr] = useState('')
 
   useEffect(async () => {
-    const { data } = await fetchSelectedGroup()
-    setQr(data.feedbackQrcode)
+    const { data, message, code } = await fetchSelectedGroup()
+    if (code === 200) {
+      setQr(data.feedbackQrcode)
+    } else {
+      alert(message)
+    }
   }, [])
 
   return (
     <PageTransition>
       <DefaultLayout image={feedbackBanner}>
         {
-        <QRCode
-          image={qr}
-          desc2={
-          <Text>
-            <p>无法进群的同学，</p>
-            <p>请扫码进入问题反馈群!</p>
-          </Text>
-          } />
+          <QRCode
+            image={qr}
+            desc2={
+              <Text>
+                <p>无法进群的同学，</p>
+                <p>请扫码进入问题反馈群!</p>
+              </Text>
+            } />
         }
       </DefaultLayout>
     </PageTransition>

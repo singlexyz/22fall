@@ -1,0 +1,7 @@
+cd static/form/
+
+lcd dist/assets
+
+prompt
+
+bye

@@ -3,7 +3,8 @@ import DefaultLayout from './layout/DefaultLayout'
 import QRCode from './view/QRCode'
 import styled from 'styled-components'
 import successBanner from './images/success.png'
-import { fetchSelectedGroup } from './api'
+import successIcon from './images/success-icon.png'
+import { fetchGroupList } from './api'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCut } from '@fortawesome/free-solid-svg-icons'
@@ -69,15 +70,38 @@ const ReadmeTerm = styled.dd`
   }
 `
 
-function Success () {
-  const [qr, setQr] = useState('')
+const Text = styled.div`
+  display: flex;
+  flex-flow: column nowrap;
+  height: 100%;
+  margin-top: -1rem;
+  justify-content: center;
+  align-items: center;
+  .image { width: 13.33333333%; max-width: 100px; }
+  .message { color: white; font-size: 1.25rem; margin-bottom: .1em; }
+  .wechat { font-size: .75rem; color: rgba(255, 255, 255, .6); }
+`
 
+function Success() {
+  const [qr, setQr] = useState('')
+  const [wechat, setWechat] = useState('')
   useEffect(async () => {
-    const { data } = await fetchSelectedGroup()
-    setQr(data.wechatQrcode)
+    const { code, data, message } = await fetchGroupList()
+    if (code === 200) {
+      setQr(data.wechatQrcode)
+      setWechat(data.info.wechat)
+    } else {
+      alert(message)
+    }
   }, [])
   return (
-    <DefaultLayout image={successBanner}>
+    <DefaultLayout text={
+      <Text>
+        <img className="image" src={successIcon} />
+        <p className="message">提交成功</p>
+        <p className="wechat">微信号：{wechat}</p>
+      </Text>
+    } image={successBanner}>
       <Tip>
         <TipInner>
           <FontAwesomeIcon icon={faCut} />

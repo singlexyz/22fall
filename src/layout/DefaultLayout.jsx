@@ -19,10 +19,10 @@ const Page = styled.div`
   margin: 0 auto;
 `
 
-function DefaultLayout ({ image, children }) {
+function DefaultLayout({ text, image, children }) {
   return (
     <Page>
-      <Banner image={image} />
+      <Banner text={text} image={image} />
       <Content>
         {children}
       </Content>

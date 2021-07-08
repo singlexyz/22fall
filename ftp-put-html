@@ -1,0 +1,4 @@
+cd 22fallGroup
+lcd dist
+put index.html
+bye

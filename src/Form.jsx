@@ -8,6 +8,7 @@ import axios from 'axios'
 import './Form.scss'
 import DefaultLayout from './layout/DefaultLayout'
 import { useHistory } from 'react-router-dom'
+import { submitFromDetails } from './api'
 
 const Header = () => {
   return (
@@ -22,7 +23,7 @@ const Field = ({ children, title }) => {
   return (
     <div className="field">
       {title && <p className="field__title">{title}</p>}
-       {children}
+      {children}
     </div>
   )
 }
@@ -38,7 +39,7 @@ function Form({ data }) {
     e.preventDefault()
     setIsPending(true)
     try {
-      const { data: { message, code } } = await axios.post('/form/submit', { info: formdata, token }, { headers: { authorization: '58b5cc72ae86e1b28c632fd4f9b4759f' } })
+      const { message, code } = await submitFromDetails({ info: formdata, token })
       if (code === 200) {
         history.replace('/group')
       } else {
@@ -59,41 +60,41 @@ function Form({ data }) {
         <Header onClick={() => history.push('/feedback')} />
         <AnimateSharedLayout>
           {
-          fields.map(({ type, field, title, placeholder, choices }, _index) => {
-            {
-              switch (type) {
-              case 'text':
-              return (
-                <Field key={field} title={title}>
-                  <input
-                    value={formdata[field]}
-                    onInput={(e) => onChange(field, e.target.value)}
-                    placeholder={placeholder} type="text" className="input__text" />
-                </Field>
-              )
-              case 'radio':
-              return (
-                <Field key={field} title={title}>
-                  <Radio field={field} onChange={onChange} value={formdata[field]} other={field + '_other'} values={choices} />
-                </Field>
-              )
-              case 'select':
-              return (
-                <Field key={field} title={title}>
-                  {
-                  field === 'highesteducation' ?
-                  <AdaSelect onChange={onChange} field={field} value={formdata[field]} values={choices} />
-                  :
-                  <Select onChange={onChange} field={field} value={formdata[field]} values={choices} />
-                  }
-                </Field>
-              )
+            fields.map(({ type, field, title, placeholder, choices }, _index) => {
+              {
+                switch (type) {
+                  case 'text':
+                    return (
+                      <Field key={field} title={title}>
+                        <input
+                          value={formdata[field]}
+                          onInput={(e) => onChange(field, e.target.value)}
+                          placeholder={placeholder} type="text" className="input__text" />
+                      </Field>
+                    )
+                  case 'radio':
+                    return (
+                      <Field key={field} title={title}>
+                        <Radio field={field} onChange={onChange} value={formdata[field]} other={field + '_other'} values={choices} />
+                      </Field>
+                    )
+                  case 'select':
+                    return (
+                      <Field key={field} title={title}>
+                        {
+                          field === 'highesteducation' ?
+                            <AdaSelect onChange={onChange} field={field} value={formdata[field]} values={choices} />
+                            :
+                            <Select onChange={onChange} field={field} value={formdata[field]} values={choices} />
+                        }
+                      </Field>
+                    )
+                }
               }
-            }
-          })
+            })
           }
         </AnimateSharedLayout>
-        <MotionButton onClick={onSubmit} pending={isPending} type="button" primary>提交</MotionButton>
+        <MotionButton onClick={onSubmit} pending={isPending} type="button" primary>下一步</MotionButton>
       </motion.form>
     </DefaultLayout>
   )

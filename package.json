@@ -4,7 +4,10 @@
     "dev": "vite --host 0.0.0.0 --port 80",
     "build": "vite build",
     "push": "git add .; git commit -am 'update'; git push; say '代码推送完成'",
-    "publish": "vite build; ftp 47.94.157.120 < ftp_command; say '构建发布完成！新垣结衣发来贺电。'",
+    "publish-html": "ftp 47.94.157.120 < ftp-put-html",
+    "publish-assets": "ftp 39.106.224.85 < ftp-put-assets",
+    "publish": "yarn run publish-html; yarn run publish-assets",
+    "play": "vite build; publish",
     "serve": "vite preview"
   },
   "dependencies": {
