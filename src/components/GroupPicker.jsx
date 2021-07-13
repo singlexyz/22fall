@@ -294,9 +294,11 @@ function GroupPicker({ groups, onChange }) {
             selectedGroup.map(({ name, cid, id, disabled, checked }) => (
               <SelectedGroupItem disabled={disabled} key={id}>
                 {name}
-                <button className="button" onClick={() => removeSelectedGroup(cid, id, disabled, true, name)}>
-                  <FontAwesomeIcon className="icon" icon={faTrashAlt} />
-                </button>
+                {
+                  !disabled && <button className="button" onClick={() => removeSelectedGroup(cid, id, disabled, true, name)}>
+                    <FontAwesomeIcon className="icon" icon={faTrashAlt} />
+                  </button>
+                }
               </SelectedGroupItem>
             ))
           }
